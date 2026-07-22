@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Unit 2B Pepper Challenge</title>
+  <style>
+    :root {
+      --ink: #35273e;
+      --paper: #fffdf5;
+      --cream: #fff5da;
+      --leaf: #267a54;
+      --mint: #dff1e4;
+      --sun: #ffd25e;
+      --coral: #e96355;
+      --purple: #865276;
+      --line: #9b5573;
+      --shadow: 0 7px 0 rgba(111, 57, 79, .16), 0 16px 30px rgba(73, 43, 61, .14);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { min-width: 320px; min-height: 100%; }
+    body { margin: 0; color: var(--ink); font-family: "Avenir Next", "Trebuchet MS", Arial, sans-serif; background: #efbea9; }
+    button, input { font: inherit; }
+    button:focus-visible, input:focus-visible, a:focus-visible { outline: 4px solid rgba(51,126,92,.3); outline-offset: 3px; }
+    .app {
+      position: relative;
+      min-height: 100vh;
+      overflow: hidden;
+      background:
+        linear-gradient(#9dd68d 0 49%, #efc2a7 49% 100%);
+      isolation: isolate;
+    }
+    .app::before {
+      position: absolute;
+      z-index: -1;
+      inset: 0;
+      content: "";
+      opacity: .28;
+      background-image: linear-gradient(45deg, transparent 48%, #b98683 49% 51%, transparent 52%), linear-gradient(-45deg, transparent 48%, #b98683 49% 51%, transparent 52%);
+      background-size: 34px 34px;
+      pointer-events: none;
+    }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      min-height: 72px;
+      padding: 11px clamp(14px, 3vw, 42px);
+      border-bottom: 3px solid rgba(155,85,115,.38);
+      background: rgba(255,253,245,.95);
+      box-shadow: 0 3px 0 rgba(255,255,255,.65);
+    }
+    .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .home-link {
+      display: grid;
+      width: 44px;
+      height: 44px;
+      place-items: center;
+      border: 2px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      font-weight: 900;
+      text-decoration: none;
+    }
+    .brand-badge { padding: 7px 10px; border: 2px solid var(--line); border-radius: 8px; background: var(--sun); font-size: 12px; font-weight: 900; white-space: nowrap; }
+    .brand h1 { margin: 0; overflow: hidden; font-size: clamp(20px, 2.5vw, 31px); letter-spacing: 0; text-overflow: ellipsis; white-space: nowrap; }
+    .score-row { display: flex; gap: 8px; }
+    .score-pill { display: flex; align-items: center; gap: 7px; min-width: 96px; padding: 8px 11px; border: 2px solid var(--line); border-radius: 8px; background: #fff; font-weight: 900; }
+    .screen { display: none; min-height: calc(100vh - 72px); padding: clamp(18px, 3vw, 40px); }
+    .screen.active { display: block; }
+
+    /* Stage map */
+    .map-intro { max-width: 920px; margin: 0 auto 24px; text-align: center; }
+    .map-intro .eyebrow { color: #246f50; font-size: 14px; font-weight: 900; text-transform: uppercase; }
+    .map-intro h2 { margin: 7px 0 0; font-size: clamp(34px, 6vw, 64px); line-height: 1; }
+    .map-intro p { margin: 10px 0 0; font-size: 18px; font-weight: 750; }
+    .stage-map { position: relative; display: grid; grid-template-columns: repeat(3, minmax(220px, 1fr)); gap: clamp(20px, 4vw, 54px); max-width: 1120px; margin: 52px auto 0; }
+    .stage-map::before { position: absolute; z-index: -1; top: 48%; left: 11%; width: 78%; height: 12px; border: 3px solid var(--line); border-radius: 20px; background: repeating-linear-gradient(90deg, #fff7dc 0 24px, #ec998e 24px 40px); content: ""; }
+    .stage-card { position: relative; min-height: 270px; padding: 28px 20px 20px; border: 4px solid var(--line); border-radius: 8px; background: var(--paper); box-shadow: var(--shadow); color: var(--ink); cursor: pointer; text-align: center; transition: transform .18s ease; }
+    .stage-card:hover:not(:disabled) { transform: translateY(-6px); }
+    .stage-card:disabled { cursor: not-allowed; filter: grayscale(.75); opacity: .7; }
+    .stage-number { position: absolute; top: -24px; left: 50%; display: grid; width: 50px; height: 50px; place-items: center; border: 4px solid var(--line); border-radius: 50%; background: var(--sun); transform: translateX(-50%); font-size: 23px; font-weight: 900; }
+    .stage-pepper { margin: 20px auto 8px; font-size: 82px; line-height: 1; }
+    .stage-card h3 { margin: 4px 0 8px; font-size: 25px; }
+    .stage-card p { margin: 0; font-weight: 700; line-height: 1.42; }
+    .stage-status { display: inline-block; margin-top: 15px; padding: 5px 9px; border-radius: 6px; background: var(--mint); color: var(--leaf); font-size: 13px; font-weight: 900; }
+
+    /* Challenge */
+    #gameScreen { height: calc(100vh - 72px); min-height: 650px; padding: 8px clamp(14px, 3vw, 38px); overflow: hidden; }
+    .challenge { display: grid; grid-template-rows: 60px minmax(0, 1fr) 190px; width: min(1220px, 100%); height: 100%; margin: 0 auto; }
+    .challenge-top { min-height: 0; }
+    .challenge-heading { display: grid; grid-template-columns: 130px 1fr 130px; align-items: center; gap: 10px; min-height: 44px; }
+    .back-button { min-height: 40px; padding: 7px 11px; border: 2px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); box-shadow: 0 3px 0 rgba(155,85,115,.2); cursor: pointer; font-weight: 900; }
+    .round-label { display: flex; justify-content: center; align-items: center; gap: 9px; font-size: clamp(19px, 2.4vw, 28px); font-weight: 900; text-align: center; }
+    .round-label span:first-child { font-size: 31px; }
+    .hot-count { justify-self: end; color: #9f2e35; font-size: 15px; font-weight: 900; white-space: nowrap; }
+    .progress { width: min(760px, 88vw); height: 14px; margin: 1px auto 0; overflow: hidden; border: 2px solid var(--line); border-radius: 99px; background: #ffe5d9; }
+    .progress-fill { width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--sun), #ef8e66); transition: width .3s ease; }
+    .question-card { position: relative; z-index: 3; align-self: center; width: min(900px, 100%); max-height: 100%; margin: 0 auto; overflow-y: auto; padding: clamp(15px, 2vw, 25px); border: 4px solid var(--line); border-radius: 8px; background: rgba(255,253,245,.97); box-shadow: var(--shadow); text-align: center; }
+    .question-meta { display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .question-count, .section-chip { display: inline-block; padding: 5px 9px; border-radius: 6px; background: #e5f2e7; color: var(--leaf); font-size: 13px; font-weight: 900; }
+    .section-chip { background: #fff0bd; color: #81592b; }
+    .question-card h2 { max-width: 790px; margin: 10px auto 15px; font-size: clamp(21px, 2.7vw, 32px); line-height: 1.2; }
+    .answers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; }
+    .answer { min-height: 51px; padding: 9px 13px; border: 3px solid #d98aa2; border-radius: 8px; background: #fff7e6; box-shadow: 0 4px 0 rgba(155,85,115,.16); color: var(--ink); cursor: pointer; font-size: clamp(16px, 1.7vw, 20px); font-weight: 900; transition: transform .15s ease, background .15s ease; }
+    .answer:hover:not(:disabled) { transform: translateY(-2px); background: #ffefb9; }
+    .answer:disabled { cursor: default; }
+    .answer.correct { border-color: #49a16f; background: #bfeacb; }
+    .answer.wrong { border-color: #df615d; background: #ffc6bf; }
+    .feedback { min-height: 26px; margin: 13px 0 0; font-size: 16px; font-weight: 900; }
+    .feedback.good { color: #22744f; }
+    .feedback.bad { color: #b23c45; }
+    .question-card.shake { animation: wrong-shake .45s ease-in-out; border-color: #df4c56; box-shadow: 0 0 0 7px rgba(229,80,87,.2), var(--shadow); }
+    @keyframes wrong-shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-11px)} 40%{transform:translateX(10px)} 60%{transform:translateX(-7px)} 80%{transform:translateX(5px)} }
+
+    .pronounce-panel { display: grid; grid-column: 1 / -1; width: 100%; gap: 11px; justify-items: center; }
+    .word-chip { display: inline-flex; align-items: baseline; gap: 10px; padding: 9px 15px; border: 3px solid #d98aa2; border-radius: 8px; background: #fff7e6; }
+    .word-chip strong { font-size: clamp(29px, 4vw, 43px); }
+    .word-chip span { color: #5d6963; font-family: Georgia, serif; font-size: 20px; }
+    .record-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; }
+    .record-action { min-height: 46px; padding: 8px 12px; border: 2px solid var(--line); border-radius: 8px; box-shadow: 0 3px 0 rgba(155,85,115,.18); color: var(--ink); cursor: pointer; font-weight: 900; }
+    .record-action:disabled { cursor: not-allowed; filter: grayscale(.7); opacity: .55; }
+    .record-button { background: var(--sun); }
+    .record-button.is-recording { background: var(--coral); color: #fff; animation: pulse 1s infinite; }
+    .own-button { background: #ede7fa; }
+    .model-button { background: var(--mint); }
+    .continue-button { background: #bfe8d0; }
+    .skip-button { background: #f3eee9; }
+    .record-status { width: min(690px, 100%); min-height: 42px; margin: 0; padding: 8px 11px; border-radius: 7px; background: #f3efe7; font-size: 14px; font-weight: 800; }
+    @keyframes pulse { 50% { transform: scale(1.03); box-shadow: 0 0 0 7px rgba(233,99,85,.17); } }
+
+    .spelling-panel { display: grid; grid-column: 1 / -1; width: 100%; gap: 12px; justify-items: center; }
+    .listen-prompt { display: flex; align-items: center; gap: 10px; }
+    .audio-button { display: grid; width: 54px; height: 54px; place-items: center; border: 3px solid var(--line); border-radius: 50%; background: var(--mint); color: var(--ink); cursor: pointer; font-size: 24px; }
+    .spelling-form { display: flex; justify-content: center; gap: 9px; width: min(600px, 100%); }
+    .spelling-input { min-width: 0; flex: 1; min-height: 50px; padding: 9px 13px; border: 3px solid #d98aa2; border-radius: 8px; background: #fff; color: var(--ink); font-size: 21px; font-weight: 800; }
+    .submit-spelling { min-height: 50px; padding: 9px 15px; border: 3px solid var(--line); border-radius: 8px; background: var(--sun); color: var(--ink); cursor: pointer; font-weight: 900; }
+
+    .catch-zone { position: relative; min-height: 0; height: 190px; }
+    .ground { position: absolute; right: -15vw; bottom: 0; left: -15vw; height: 44px; border-top: 4px solid var(--line); background: #a3d78f; }
+    .player { position: absolute; bottom: -5px; left: 50%; width: 205px; height: 205px; transform: translateX(-50%); }
+    .player img { display: block; width: 100%; height: 100%; object-fit: contain; }
+    .mouth-target { position: absolute; top: 36%; left: 43%; width: 14%; height: 18%; opacity: 0; pointer-events: none; }
+    .drop-item { position: fixed; z-index: 30; width: 86px; height: 86px; background-image: url("./assets/unit2b/pepper-sprites.png"); background-repeat: no-repeat; background-size: 300% 200%; pointer-events: none; filter: drop-shadow(0 8px 2px rgba(72,42,55,.22)); }
+    .drop-item.small { width: 68px; height: 68px; }
+    .drop-item.large { width: 100px; height: 100px; }
+    .burst { position: fixed; z-index: 31; padding: 8px 11px; border: 3px solid var(--coral); border-radius: 8px; background: #fff7df; color: #a72f39; box-shadow: 0 4px 0 rgba(155,85,115,.2); font-weight: 900; pointer-events: none; }
+
+    /* Results */
+    .result-wrap { display: grid; place-items: center; min-height: calc(100vh - 150px); }
+    .result-card { width: min(780px, 100%); padding: clamp(25px, 5vw, 48px); border: 4px solid var(--line); border-radius: 8px; background: var(--paper); box-shadow: var(--shadow); text-align: center; }
+    .result-card .result-pepper { font-size: 82px; }
+    .result-card h2 { margin: 5px 0; font-size: clamp(34px, 6vw, 58px); }
+    .result-score { margin: 13px 0; font-size: 22px; font-weight: 800; }
+    .result-score strong { color: var(--leaf); font-size: 38px; }
+    .result-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; margin: 21px 0; }
+    .result-item { padding: 13px 9px; border: 1px solid #cfdbd2; border-radius: 8px; background: #f4f8f3; }
+    .result-item span { display: block; color: #68736e; font-size: 13px; font-weight: 800; }
+    .result-item strong { display: block; margin-top: 4px; font-size: 24px; }
+    .result-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; }
+    .result-action { padding: 11px 16px; border: 3px solid var(--line); border-radius: 8px; box-shadow: 0 4px 0 rgba(155,85,115,.2); color: var(--ink); cursor: pointer; font-weight: 900; text-decoration: none; }
+    .result-action.primary { background: var(--sun); }
+    .result-action.secondary { background: var(--mint); }
+
+    @media (max-width: 760px) {
+      .brand-badge { display: none; }
+      .score-pill { min-width: auto; }
+      .stage-map { grid-template-columns: 1fr; gap: 42px; }
+      .stage-map::before { top: 7%; left: 50%; width: 12px; height: 85%; transform: translateX(-50%); }
+      #gameScreen { min-height: 700px; overflow-y: auto; }
+      .challenge { grid-template-rows: 72px minmax(0, 1fr) 160px; }
+      .challenge-heading { grid-template-columns: 96px 1fr 80px; }
+      .round-label { font-size: 17px; }
+      .answers { grid-template-columns: 1fr; }
+      .question-card { padding: 16px 12px; }
+      .player { width: 155px; height: 155px; }
+      .spelling-form { flex-direction: column; }
+    }
+    @media (max-height: 760px) and (min-width: 761px) {
+      #gameScreen { min-height: 590px; }
+      .challenge { grid-template-rows: 55px minmax(0, 1fr) 175px; }
+      .catch-zone { height: 175px; }
+      .player { width: 190px; height: 190px; }
+      .question-card { padding: 13px 18px; }
+      .question-card h2 { margin: 8px auto 11px; font-size: clamp(19px, 2.4vw, 27px); }
+      .answer { min-height: 45px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <a class="home-link" href="./index.html" aria-label="Back to game center">←</a>
+        <span class="brand-badge">READING EXPLORER F</span>
+        <h1>Unit 2B Pepper Challenge</h1>
+      </div>
+      <div class="score-row">
+        <div class="score-pill"><span aria-hidden="true">🫑</span><span id="sweetScore">0</span></div>
+        <div class="score-pill"><span aria-hidden="true">🌶️</span><span id="spicyScore">0</span></div>
+      </div>
+    </header>
+
+    <section id="mapScreen" class="screen active">
+      <div class="map-intro"><span class="eyebrow">The Hottest Chilies</span><h2>Choose Your Pepper</h2><p>Build language skills and keep Snack Scout cool.</p></div>
+      <div id="stageMap" class="stage-map"></div>
+    </section>
+
+    <section id="gameScreen" class="screen" aria-live="polite">
+      <div class="challenge">
+        <div class="challenge-top">
+          <div class="challenge-heading">
+            <button id="backToMap" class="back-button" type="button">← Map</button>
+            <div id="roundLabel" class="round-label"></div>
+            <div id="hotCount" class="hot-count">🌶️ 0</div>
+          </div>
+          <div class="progress"><div id="progressFill" class="progress-fill"></div></div>
+        </div>
+        <article class="question-card">
+          <div class="question-meta"><span id="sectionChip" class="section-chip"></span><span id="questionCount" class="question-count"></span></div>
+          <h2 id="questionText"></h2>
+          <div id="answers" class="answers"></div>
+          <p id="feedback" class="feedback"></p>
+        </article>
+        <div class="catch-zone">
+          <div class="ground"></div>
+          <div id="player" class="player" aria-label="Snack Scout waiting for a pepper">
+            <img id="puppyImage" src="./assets/snack-scout-idle-transparent.png" alt="Snack Scout waiting for a pepper" />
+            <span id="mouthTarget" class="mouth-target"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="resultScreen" class="screen">
+      <div class="result-wrap"><div id="resultCard" class="result-card"></div></div>
+    </section>
+  </main>
+
+  <script>
+    const audioBase = "../audio/unit2b/human/";
+    const referenceAudio = {
+      experience: `${audioBase}experience-us-human.mp3`, dish: `${audioBase}dish-us-human.mp3`, capsaicin: `${audioBase}capsaicin-human.wav`,
+      contain: `${audioBase}contain-human.mp3`, calories: `${audioBase}calorie-us-human.ogg`, barely: `${audioBase}barely-us-human.mp3`,
+      health: `${audioBase}health-us-human.ogg`, healthy: `${audioBase}healthy-us-human.mp3`
+    };
+    const pronunciation = {
+      experience: "/ɪkˈspɪriəns/", dish: "/dɪʃ/", capsaicin: "/kæpˈseɪəsɪn/", contain: "/kənˈteɪn/",
+      calories: "/ˈkæləriz/", barely: "/ˈberli/", health: "/helθ/", healthy: "/ˈhelθi/"
+    };
+    const meaningQuestions = [
+      { q: "After living in three countries, Mina has a lot of international ____.", options: ["experience", "calories", "capsicum", "health"], answer: 0, note: "Experience is knowledge or skill gained by doing or living through something." },
+      { q: "My grandfather taught me how to make his favorite rice ____.", options: ["plant", "dish", "slip", "experience"], answer: 1, note: "A dish is food prepared in a particular way." },
+      { q: "Which word names the plant group that includes sweet peppers and chilies?", options: ["capsicum", "capsaicin", "calorie", "mature"], answer: 0, note: "Capsicum is the plant group; capsaicin is the chemical that creates heat." },
+      { q: "Which substance makes many chilies taste hot?", options: ["capsaicin", "capsicum", "health", "dish"], answer: 0, note: "Capsaicin is the chemical responsible for the hot sensation." },
+      { q: "This box ____ old photographs from my parents’ childhood.", options: ["contains", "slips", "matures", "experiences"], answer: 0, note: "Contain means to have something inside." },
+      { q: "Running up the stairs can help you burn a few extra ____.", options: ["calories", "dishes", "plants", "experiences"], answer: 0, note: "Calories are units used to measure energy in food." },
+      { q: "The bus was so crowded that I could ____ move.", options: ["barely", "tasty", "healthy", "mature"], answer: 0, note: "Barely means only just, or almost not." },
+      { q: "Getting enough sleep supports physical and mental ____.", options: ["health", "healthy", "calorie", "dish"], answer: 0, note: "Health is the noun for the condition of the body or mind." },
+      { q: "Leo developed ____ habits by walking his dog every evening.", options: ["healthy", "health", "barely", "contain"], answer: 0, note: "Healthy is an adjective meaning good for your body or mind." },
+      { q: "The fruit is not ready yet; it needs more time to ____.", options: ["mature", "slip", "contain", "plant"], answer: 0, note: "Mature can mean to become fully developed or ripe." },
+      { q: "In the sentence ‘They plant tomatoes every spring,’ what does plant mean?", options: ["put seeds or young plants in soil", "lose your balance", "taste delicious", "measure food energy"], answer: 0, note: "As a verb, plant means to put a seed or young plant into soil." },
+      { q: "The soup smells wonderful and tastes ____.", options: ["tasty", "barely", "mature", "healthy"], answer: 0, note: "Tasty means having a pleasant flavor." },
+      { q: "Be careful not to ____ on the wet floor.", options: ["slip", "contain", "mature", "experience"], answer: 0, note: "Slip means to slide accidentally and lose your balance." }
+    ];
+    const pronunciationQuestions = Object.keys(pronunciation).map((word) => ({ type: "pronounce", word, ipa: pronunciation[word] }));
+    const spellingQuestions = Object.keys(pronunciation).map((word) => ({ type: "spell", word }));
+    const pronounQuestions = [
+      { q: "Chilies contain capsaicin, and it gives them their heat. What does ‘it’ refer to?", options: ["capsaicin", "chilies", "heat", "dishes"], answer: 0, note: "The singular pronoun it refers to capsaicin." },
+      { q: "Chilies contain capsaicin, and it gives them their heat. What does ‘them’ refer to?", options: ["chilies", "people", "dishes", "plants"], answer: 0, note: "The plural pronoun them refers to chilies." },
+      { q: "When people eat very hot chilies, they may sweat because their bodies think they are in danger. Who are ‘they’?", options: ["the people", "the chilies", "the bodies", "the dangers"], answer: 0, note: "They refers back to people." },
+      { q: "Capsaicin sends a pain message to the brain. This is why your mouth feels on fire. What does ‘This’ refer to?", options: ["the brain receiving a pain message", "the pepper’s color", "the name of a dish", "the Scoville scale"], answer: 0, note: "This summarizes the complete idea in the previous sentence." },
+      { q: "Pepper X became the official hottest chili. Many chili lovers wanted to try it. What does ‘it’ refer to?", options: ["Pepper X", "the official record", "the chili lovers", "the Scoville scale"], answer: 0, note: "It refers to the nearest clear singular noun, Pepper X." }
+    ];
+    const comprehensionQuestions = [
+      { q: "What is the article ‘The Hottest Chilies’ mainly about?", options: ["why chilies are hot and how people react to them", "how to open a restaurant", "why all spicy food is unhealthy", "how to grow rice"], answer: 0, note: "The article explains capsaicin, chili heat, records, and a famous chili eater." },
+      { q: "Which foods are mentioned as examples of dishes that use chilies?", options: ["Indian curries, tom yum soup, and enchiladas", "pizza, sushi, and pancakes", "salad, bread, and ice cream", "rice, cereal, and cheese"], answer: 0, note: "The article gives examples from India, Thailand, and Mexico." },
+      { q: "Where do chilies come from?", options: ["the capsicum plant", "the capsaicin tree", "the calorie plant", "the Scoville flower"], answer: 0, note: "Chilies are fruits of plants in the capsicum group." },
+      { q: "According to the article, how may capsaicin help the body?", options: ["It may help people breathe and burn more calories.", "It makes every illness disappear.", "It replaces sleep and exercise.", "It makes all food sweet."], answer: 0, note: "The article mentions breathing, appetite, and calorie burning." },
+      { q: "What does the Scoville scale measure?", options: ["the heat of a chili", "the size of a plant", "the calories in a dish", "the age of a pepper"], answer: 0, note: "Scoville heat units, or SHU, measure chili heat." },
+      { q: "How hot can a Carolina Reaper be?", options: ["up to about 2 million SHU", "about 200 SHU", "exactly 51 SHU", "less than 10 SHU"], answer: 0, note: "The article says it can reach about two million Scoville heat units." },
+      { q: "Who is Anandita Dutta Tamuly?", options: ["a famous chili eater from Assam, India", "the inventor of the Scoville scale", "a Mexican chef", "a capsicum scientist from Thailand"], answer: 0, note: "She is known for eating extremely hot chilies." },
+      { q: "What record-like achievement is mentioned about Tamuly?", options: ["She ate 51 hot peppers in two minutes.", "She grew two million peppers.", "She invented 51 dishes.", "She ate one pepper in 51 minutes."], answer: 0, note: "She ate 51 hot peppers in only two minutes." },
+      { q: "What are Naga Jolokia chilies also called?", options: ["ghost peppers", "sweet peppers", "rice peppers", "Scoville plants"], answer: 0, note: "Naga Jolokia are commonly called ghost peppers." },
+      { q: "Why does Tamuly say she barely notices chilies now?", options: ["She has eaten them since childhood and is used to them.", "The chilies contain no capsaicin.", "She always removes their color.", "She only eats sweet peppers."], answer: 0, note: "Long experience has made the heat feel less noticeable to her." }
+    ];
+    const levels = [
+      { name: "Pepper Pantry", icon: "🫑", short: "Vocabulary", description: "Meaning, pronunciation, and spelling.", questions: [...meaningQuestions, ...pronunciationQuestions, ...spellingQuestions] },
+      { name: "Pronoun Trail", icon: "🌶️", short: "Reading Skills", description: "Follow pronouns back to their references.", questions: pronounQuestions },
+      { name: "Chili Expert", icon: "🔥", short: "Article Understanding", description: "Review facts and ideas from Reading 2B.", questions: comprehensionQuestions }
+    ];
+
+    const state = { unlocked: 0, level: 0, question: 0, sweet: 0, spicy: 0, results: [0,0,0], levelSpicy: [0,0,0] };
+    const screens = [document.querySelector("#mapScreen"), document.querySelector("#gameScreen"), document.querySelector("#resultScreen")];
+    const stageMap = document.querySelector("#stageMap");
+    const sweetScore = document.querySelector("#sweetScore");
+    const spicyScore = document.querySelector("#spicyScore");
+    const roundLabel = document.querySelector("#roundLabel");
+    const hotCount = document.querySelector("#hotCount");
+    const progressFill = document.querySelector("#progressFill");
+    const questionCount = document.querySelector("#questionCount");
+    const sectionChip = document.querySelector("#sectionChip");
+    const questionText = document.querySelector("#questionText");
+    const answers = document.querySelector("#answers");
+    const feedback = document.querySelector("#feedback");
+    const questionCard = document.querySelector(".question-card");
+    const puppyImage = document.querySelector("#puppyImage");
+    let audioContext;
+    let microphoneStream;
+    let recorder;
+    let recordedUrl = "";
+    let recordingComplete = false;
+    const progressKey = "re-reading-games-v1";
+    const puppyFrames = {
+      idle: "./assets/snack-scout-idle-transparent.png",
+      chew: "./assets/snack-scout-chew-transparent.png",
+      celebrate: "./assets/snack-scout-celebrate-transparent.png",
+      spicy1: "./assets/unit2b/snack-scout-spicy-1.png",
+      spicy2: "./assets/unit2b/snack-scout-spicy-2.png",
+      spicy3: "./assets/unit2b/snack-scout-spicy-3.png",
+      spicy4: "./assets/unit2b/snack-scout-spicy-4.png"
+    };
+
+    function showScreen(target) { screens.forEach((screen) => screen.classList.toggle("active", screen === target)); }
+    function updateScore() { sweetScore.textContent = state.sweet; spicyScore.textContent = state.spicy; hotCount.textContent = `🌶️ ${state.levelSpicy[state.level] || 0}`; }
+    function renderPuppy(name) { puppyImage.src = puppyFrames[name]; }
+    function wait(ms) { return new Promise((resolve) => setTimeout(resolve, ms)); }
+    function getAudioContext() { if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)(); if (audioContext.state === "suspended") audioContext.resume(); return audioContext; }
+    function tone(frequency, start, duration, type = "sine", volume = .06) { const ctx = getAudioContext(); const osc = ctx.createOscillator(); const gain = ctx.createGain(); osc.type = type; osc.frequency.setValueAtTime(frequency, start); gain.gain.setValueAtTime(.001, start); gain.gain.exponentialRampToValueAtTime(volume, start + .015); gain.gain.exponentialRampToValueAtTime(.001, start + duration); osc.connect(gain).connect(ctx.destination); osc.start(start); osc.stop(start + duration + .03); }
+    function sound(kind) { const ctx = getAudioContext(); const now = ctx.currentTime; if (kind === "correct") { tone(784,now,.12); tone(1047,now+.11,.15); tone(1319,now+.25,.2,"triangle"); } else if (kind === "wrong") { tone(128,now,.2,"sawtooth",.08); tone(88,now+.14,.3,"sawtooth",.075); } else { tone(720,now,.06,"triangle",.025); } }
+
+    function renderMap() {
+      stageMap.innerHTML = levels.map((level, index) => {
+        const locked = index > state.unlocked;
+        const status = index < state.unlocked ? "Completed" : index === state.unlocked ? "Play now" : "Locked";
+        return `<button class="stage-card" type="button" data-stage="${index}" ${locked ? "disabled" : ""}>
+          <span class="stage-number">${index + 1}</span><div class="stage-pepper">${level.icon}</div><h3>${level.name}</h3><p>${level.description}</p><span class="stage-status">${status}</span>
+        </button>`;
+      }).join("");
+      stageMap.querySelectorAll("[data-stage]").forEach((button) => button.addEventListener("click", () => startLevel(Number(button.dataset.stage))));
+    }
+
+    function startLevel(index) {
+      state.level = index; state.question = 0; state.results[index] = 0; state.levelSpicy[index] = 0;
+      showScreen(screens[1]); updateScore(); renderQuestion();
+    }
+
+    function getSection(item) {
+      if (state.level === 1) return "Pronoun Reference";
+      if (state.level === 2) return "Reading 2B";
+      if (item.type === "pronounce") return "Pronunciation";
+      if (item.type === "spell") return "Listen & Spell";
+      return "Meaning in Context";
+    }
+
+    function renderQuestion() {
+      const level = levels[state.level]; const item = level.questions[state.question];
+      roundLabel.innerHTML = `<span>${level.icon}</span><span>${level.name}</span>`;
+      progressFill.style.width = `${(state.question / level.questions.length) * 100}%`;
+      questionCount.textContent = `Question ${state.question + 1} / ${level.questions.length}`;
+      sectionChip.textContent = getSection(item);
+      questionText.textContent = item.q || (item.type === "pronounce" ? "Record yourself first, then compare." : "Listen and spell the word.");
+      answers.innerHTML = ""; feedback.textContent = ""; feedback.className = "feedback"; questionCard.scrollTop = 0;
+      if (item.type === "pronounce") return renderPronunciation(item);
+      if (item.type === "spell") return renderSpelling(item);
+      item.options.forEach((option, index) => {
+        const button = document.createElement("button"); button.type = "button"; button.className = "answer"; button.textContent = option;
+        button.addEventListener("click", () => chooseAnswer(index, button, item)); answers.appendChild(button);
+      });
+    }
+
+    function renderPronunciation(item) {
+      recordingComplete = false;
+      if (recordedUrl) { URL.revokeObjectURL(recordedUrl); recordedUrl = ""; }
+      answers.innerHTML = `<div class="pronounce-panel">
+        <div class="word-chip"><strong>${item.word}</strong><span>${item.ipa}</span></div>
+        <div class="record-actions">
+          <button id="recordButton" class="record-action record-button" type="button">🎙 Record My Voice</button>
+          <button id="playOwn" class="record-action own-button" type="button" disabled>▶ My Recording</button>
+          <button id="playModel" class="record-action model-button" type="button" disabled>🔊 US Model</button>
+          <button id="continuePronunciation" class="record-action continue-button" type="button" disabled>Continue →</button>
+          <button id="skipPronunciation" class="record-action skip-button" type="button">Skip for now</button>
+        </div>
+        <p id="recordStatus" class="record-status">Say the word yourself first. Your recording and the US model can be played after you stop.</p>
+      </div>`;
+      document.querySelector("#recordButton").addEventListener("click", () => toggleRecording(item));
+      document.querySelector("#playOwn").addEventListener("click", () => recordedUrl && new Audio(recordedUrl).play());
+      document.querySelector("#playModel").addEventListener("click", () => playReference(item.word));
+      document.querySelector("#continuePronunciation").addEventListener("click", async () => { if (!recordingComplete) return; disableControls(); await resolveAnswer(true, "Recording complete. Compare your voice with the human US model whenever you need."); });
+      document.querySelector("#skipPronunciation").addEventListener("click", async () => { disableControls(); await resolveAnswer(false, `You skipped ${item.word}. You can practise it again later.`, { spicyReaction: false }); });
+    }
+
+    async function getMicrophone() {
+      if (microphoneStream?.active) return microphoneStream;
+      microphoneStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      return microphoneStream;
+    }
+
+    async function toggleRecording(item) {
+      const button = document.querySelector("#recordButton"); const status = document.querySelector("#recordStatus");
+      if (recorder?.state === "recording") { recorder.stop(); return; }
+      if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) { status.textContent = "Recording is unavailable here. Use Chrome or Edge, or choose Skip for now."; return; }
+      try {
+        const stream = await getMicrophone(); const chunks = [];
+        recorder = new MediaRecorder(stream);
+        recorder.ondataavailable = (event) => { if (event.data.size) chunks.push(event.data); };
+        recorder.onstop = () => {
+          if (recordedUrl) URL.revokeObjectURL(recordedUrl);
+          recordedUrl = URL.createObjectURL(new Blob(chunks, { type: recorder.mimeType || "audio/webm" }));
+          recordingComplete = true; button.textContent = "🎙 Record Again"; button.classList.remove("is-recording");
+          document.querySelector("#playOwn").disabled = false; document.querySelector("#playModel").disabled = false; document.querySelector("#continuePronunciation").disabled = false;
+          status.textContent = "Recording saved. Play your voice, then play the human US model to compare.";
+        };
+        recorder.start(); button.textContent = "⏹ Stop Recording"; button.classList.add("is-recording"); status.textContent = `Recording ${item.word}. Stop whenever you are ready.`;
+      } catch (error) { status.textContent = "Microphone permission was not available. Allow it once in the browser, or choose Skip for now."; }
+    }
+
+    function playReference(word) {
+      const path = referenceAudio[word];
+      if (!path) return;
+      const audio = new Audio(path);
+      audio.play().catch(() => { feedback.textContent = "The human audio file could not be played in this browser."; feedback.className = "feedback bad"; });
+    }
+
+    function renderSpelling(item) {
+      answers.innerHTML = `<div class="spelling-panel">
+        <div class="listen-prompt"><button id="spellAudio" class="audio-button" type="button" aria-label="Play human pronunciation">🔊</button><strong>Listen to the human voice.</strong></div>
+        <form id="spellingForm" class="spelling-form"><input id="spellingInput" class="spelling-input" autocomplete="off" autocapitalize="none" spellcheck="false" aria-label="Spell the word" /><button class="submit-spelling" type="submit">Check</button></form>
+      </div>`;
+      document.querySelector("#spellAudio").addEventListener("click", () => playReference(item.word));
+      document.querySelector("#spellingForm").addEventListener("submit", (event) => { event.preventDefault(); submitSpelling(item); });
+      setTimeout(() => document.querySelector("#spellingInput")?.focus(), 80);
+    }
+
+    async function submitSpelling(item) {
+      const input = document.querySelector("#spellingInput");
+      const value = input.value.trim().toLowerCase().replace(/\s+/g, " ");
+      if (!value) { feedback.textContent = "Type the word before checking."; feedback.className = "feedback bad"; return; }
+      disableControls();
+      const correct = value === item.word.toLowerCase();
+      input.style.borderColor = correct ? "#49a16f" : "#df615d";
+      await resolveAnswer(correct, correct ? `Correct spelling: ${item.word}.` : `The correct spelling is ${item.word}.`);
+    }
+
+    function disableControls() { answers.querySelectorAll("button, input").forEach((element) => { element.disabled = true; }); }
+    async function chooseAnswer(index, clicked, item) {
+      const buttons = [...answers.querySelectorAll("button")]; buttons.forEach((button) => { button.disabled = true; });
+      const correct = index === item.answer; clicked.classList.add(correct ? "correct" : "wrong"); if (!correct) buttons[item.answer]?.classList.add("correct");
+      await resolveAnswer(correct, item.note);
+    }
+
+    async function resolveAnswer(correct, note, { spicyReaction = true } = {}) {
+      sound(correct ? "correct" : "wrong");
+      if (!correct) { questionCard.classList.remove("shake"); void questionCard.offsetWidth; questionCard.classList.add("shake"); if (navigator.vibrate) navigator.vibrate([90,35,110]); }
+      feedback.textContent = correct ? `Sweet catch! ${note}` : `Hot one! ${note}`; feedback.className = `feedback ${correct ? "good" : "bad"}`;
+      await dropPepper(correct);
+      if (correct) { state.sweet += 1; state.results[state.level] += 1; }
+      else { state.spicy += 1; state.levelSpicy[state.level] += 1; }
+      updateScore();
+      if (!correct && !spicyReaction) renderPuppy("idle");
+      await wait(760);
+      const level = levels[state.level];
+      if (state.question >= level.questions.length - 1) finishLevel();
+      else { state.question += 1; renderQuestion(); }
+    }
+
+    function pepperPosition(correct) {
+      const column = state.level % 3;
+      return `${column === 0 ? "0%" : column === 1 ? "50%" : "100%"} ${correct ? "0%" : "100%"}`;
+    }
+
+    function dropPepper(correct) {
+      return new Promise((resolve) => {
+        const mouth = document.querySelector("#mouthTarget").getBoundingClientRect();
+        const startX = window.innerWidth / 2 - 42 + (Math.random() * 120 - 60);
+        const targetX = mouth.left + mouth.width / 2 - 43; const targetY = mouth.top - 23;
+        const item = document.createElement("div"); item.className = `drop-item ${state.level === 0 ? "small" : state.level === 2 ? "large" : ""}`; item.style.backgroundPosition = pepperPosition(correct); item.style.left = `${startX}px`; item.style.top = "-100px"; document.body.appendChild(item);
+        const animation = item.animate([{ transform: "translate(0,0) rotate(-10deg) scale(.75)", opacity: 1 }, { transform: `translate(${targetX-startX}px, ${targetY+100}px) rotate(${correct ? 350 : 210}deg) scale(1)`, opacity: 1 }], { duration: 720, easing: "cubic-bezier(.2,.8,.35,1)", fill: "forwards" });
+        animation.onfinish = () => { item.remove(); correct ? animateSweet() : animateSpicy(); resolve(); };
+      });
+    }
+
+    function animateSweet() { renderPuppy("chew"); setTimeout(() => renderPuppy("celebrate"), 300); setTimeout(() => renderPuppy("idle"), 760); }
+    function animateSpicy() { renderPuppy("spicy1"); setTimeout(() => renderPuppy("spicy2"), 230); setTimeout(() => renderPuppy("spicy3"), 500); setTimeout(() => renderPuppy("spicy4"), 850); setTimeout(() => renderPuppy("idle"), 1250); }
+
+    function finishLevel() {
+      if (state.level === state.unlocked && state.unlocked < levels.length - 1) state.unlocked += 1;
+      if (state.level < levels.length - 1) {
+        const level = levels[state.level]; showScreen(screens[2]);
+        document.querySelector("#resultCard").innerHTML = `<div class="result-pepper">${level.icon}</div><h2>Stage Complete</h2><p class="result-score">You caught <strong>${state.results[state.level]}</strong> sweet peppers in ${level.name}.</p><div class="result-actions"><button id="nextStage" class="result-action primary" type="button">Next Stage →</button><button id="showMap" class="result-action secondary" type="button">Stage Map</button></div>`;
+        document.querySelector("#nextStage").addEventListener("click", () => startLevel(state.level + 1)); document.querySelector("#showMap").addEventListener("click", () => { renderMap(); showScreen(screens[0]); });
+        return;
+      }
+      saveProgress(); showFinalResults();
+    }
+
+    function saveProgress() {
+      let progress = {}; try { progress = JSON.parse(localStorage.getItem(progressKey)) || {}; } catch (error) { progress = {}; }
+      progress.unit2 ||= {};
+      const previous = progress.unit2.unit2b || {};
+      progress.unit2.unit2b = { completed: true, score: Math.max(previous.score || 0, state.sweet), total: levels.reduce((sum, level) => sum + level.questions.length, 0), spicy: state.spicy, stageScores: [...state.results], completedAt: new Date().toISOString() };
+      try { localStorage.setItem(progressKey, JSON.stringify(progress)); } catch (error) { /* The final link also returns the score for file:// use. */ }
+    }
+
+    function showFinalResults() {
+      showScreen(screens[2]);
+      const total = levels.reduce((sum, level) => sum + level.questions.length, 0);
+      document.querySelector("#resultCard").innerHTML = `<div class="result-pepper">🏆🫑</div><h2>Pepper Challenge Complete!</h2><p class="result-score">Snack Scout caught <strong>${state.sweet}</strong> sweet peppers out of ${total} challenges.</p>
+        <div class="result-grid">${levels.map((level,index) => `<div class="result-item"><span>${level.short}</span><strong>${state.results[index]} / ${level.questions.length}</strong></div>`).join("")}</div>
+        <p>You also met ${state.spicy} extra-hot peppers.</p><div class="result-actions"><a class="result-action primary" href="./index.html?u2b=${state.sweet}">Unit Scores</a><button id="playAgain" class="result-action secondary" type="button">Play Again</button></div>`;
+      document.querySelector("#playAgain").addEventListener("click", () => location.reload());
+    }
+
+    document.addEventListener("click", (event) => { if (event.target.closest("button") && !event.target.closest("button").disabled) sound("click"); });
+    document.querySelector("#backToMap").addEventListener("click", () => { if (recorder?.state === "recording") recorder.stop(); renderMap(); showScreen(screens[0]); renderPuppy("idle"); });
+    window.addEventListener("beforeunload", () => microphoneStream?.getTracks().forEach((track) => track.stop()));
+    renderPuppy("idle"); updateScore(); renderMap();
+  </script>
+</body>
+</html>

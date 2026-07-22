@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Unit 2A Six-Dimension Vocabulary Worksheet</title>
+    <style>
+      :root {
+        --ink: #17211b;
+        --muted: #66736b;
+        --line: #d8e1d8;
+        --soft: #f3f8f1;
+        --green: #188654;
+        --yellow: #ffe56d;
+        --blue: #eaf2ff;
+        --paper: #ffffff;
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: #edf4ec; color: var(--ink); }
+      .page { display: grid; gap: 24px; width: min(100%, 980px); margin: 0 auto; padding: 28px; }
+      .sheet {
+        min-height: 1320px;
+        padding: 30px;
+        border: 1px solid var(--line);
+        background: var(--paper);
+        box-shadow: 0 16px 42px rgba(30, 72, 49, 0.12);
+      }
+      header {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 18px;
+        align-items: start;
+        padding-bottom: 18px;
+        border-bottom: 4px solid var(--yellow);
+      }
+      h1, h2, h3, p { margin: 0; }
+      h1 { font-size: 30px; line-height: 1.08; }
+      h2 { margin: 24px 0 12px; font-size: 19px; }
+      h3 { font-size: 15px; line-height: 1.4; }
+      .meta { display: grid; gap: 6px; color: var(--muted); font-size: 14px; line-height: 1.45; }
+      .name-box { display: grid; gap: 10px; min-width: 250px; font-size: 14px; }
+      .line { display: inline-block; width: 170px; border-bottom: 1px solid var(--ink); }
+      .dimension-bar { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-top: 16px; }
+      .dimension-bar span {
+        min-height: 34px;
+        padding: 6px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--soft);
+        color: var(--green);
+        font-size: 12px;
+        font-weight: 800;
+        text-align: center;
+      }
+      .word-bank { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+      .word-bank span {
+        padding: 7px 10px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: #fff;
+        font-weight: 800;
+      }
+      .box { padding: 14px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+      .soft { background: var(--soft); }
+      .blue { background: var(--blue); }
+      table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+      th, td {
+        padding: 8px;
+        border: 1px solid var(--line);
+        vertical-align: middle;
+        font-size: 13px;
+        line-height: 1.35;
+      }
+      th { background: var(--green); color: #fff; font-size: 12px; text-align: left; }
+      td.answer-cell { height: 42px; }
+      .blank { display: inline-block; min-width: 120px; border-bottom: 1px solid var(--ink); }
+      .prompt-list { display: grid; gap: 11px; padding-left: 22px; margin: 0; line-height: 1.55; }
+      .small { color: var(--muted); font-size: 12px; line-height: 1.5; }
+      .definition-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-top: 12px; }
+      .definition-grid span { padding: 8px 10px; border: 1px solid var(--line); background: var(--soft); font-size: 12px; }
+      .definition-grid b { color: var(--green); }
+      .origin-tree { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: 8px; align-items: center; }
+      .origin-node { min-height: 72px; padding: 10px; border: 1px solid var(--line); background: var(--soft); text-align: center; font-size: 13px; }
+      .origin-arrow { color: var(--green); font-size: 20px; font-weight: 800; }
+      .meaning-boxes { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+      .meaning-box { min-height: 190px; padding: 16px; border: 1px solid var(--line); background: var(--soft); }
+      .meaning-box strong { color: var(--green); font-size: 18px; }
+      .writing-box { min-height: 420px; margin-top: 12px; border: 1px solid var(--line); border-radius: 8px; }
+      .long-lines { display: grid; gap: 16px; margin-top: 10px; }
+      .long-lines span { display: block; height: 24px; border-bottom: 1px solid var(--line); }
+      .answer-key { padding-top: 2px; }
+      .answer { color: #125f3e; font-weight: 700; }
+      .page-label { margin-bottom: 14px; color: var(--green); font-size: 12px; font-weight: 800; text-transform: uppercase; }
+      @media (max-width: 720px) {
+        .page { padding: 12px; }
+        .sheet { min-height: auto; padding: 18px; }
+        header, .definition-grid, .meaning-boxes { grid-template-columns: 1fr; }
+        .dimension-bar { grid-template-columns: repeat(3, 1fr); }
+        .origin-tree { grid-template-columns: 1fr; }
+        .origin-arrow { transform: rotate(90deg); text-align: center; }
+      }
+      @media print {
+        body { background: #fff; }
+        .page { display: block; width: 100%; padding: 0; }
+        .sheet {
+          min-height: auto;
+          border: 0;
+          box-shadow: none;
+          break-after: page;
+          page-break-after: always;
+        }
+        .sheet:last-child { break-after: auto; page-break-after: auto; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="sheet">
+        <header>
+          <div>
+            <h1>RE Foundations · Unit 2A Vocabulary</h1>
+            <div class="meta">
+              <p>Theme: Eating Extremes · Reading: The World of Speed Eating</p>
+              <p>Six-Dimension Vocabulary Worksheet</p>
+            </div>
+          </div>
+          <div class="name-box">
+            <div>Name: <span class="line"></span></div>
+            <div>Date: <span class="line"></span></div>
+            <div>Score: <span class="line"></span></div>
+          </div>
+        </header>
+        <div class="dimension-bar">
+          <span>1 音形<br />Sound & Form</span><span>2 核心义<br />Core Meaning</span>
+          <span>3 语境义<br />Context</span><span>4 搭配<br />Collocation</span>
+          <span>5 词族<br />Word Family</span><span>6 输出<br />Use</span>
+        </div>
+        <h2>Word Bank</h2>
+        <div class="word-bank">
+          <span>argue</span><span>athlete</span><span>exactly</span><span>record</span>
+          <span>tradition</span><span>unhealthy</span><span>various</span><span>work out</span>
+          <span>contest</span><span>legend</span><span>immigrant</span>
+        </div>
+        <h2>Part 1 · Core Meaning Match</h2>
+        <div class="definition-grid">
+          <span><b>A</b> to disagree and give reasons for your opinion</span>
+          <span><b>B</b> a person trained to compete in sports</span>
+          <span><b>C</b> in a precise or completely correct way</span>
+          <span><b>D</b> the best result, or an official written account</span>
+          <span><b>E</b> a belief or custom passed down for a long time</span>
+          <span><b>F</b> not good for your health</span>
+          <span><b>G</b> several different kinds of</span>
+          <span><b>H</b> to exercise</span>
+          <span><b>I</b> an organized event in which people try to win</span>
+          <span><b>J</b> a traditional story that may or may not be true</span>
+          <span><b>K</b> a person who comes to live in a new country</span>
+        </div>
+        <table style="margin-top: 12px">
+          <thead><tr><th>Word</th><th>Letter</th><th>Chinese meaning</th><th>Confidence</th></tr></thead>
+          <tbody>
+            <tr><td>argue</td><td class="answer-cell"></td><td></td><td>□ sure □ not sure</td></tr>
+            <tr><td>athlete</td><td class="answer-cell"></td><td></td><td>□ sure □ not sure</td></tr>
+            <tr><td>exactly</td><td class="answer-cell"></td><td></td><td>□ sure □ not sure</td></tr>
+            <tr><td>record</td><td class="answer-cell"></td><td></td><td>□ sure □ not sure</td></tr>
+            <tr><td>tradition</td><td class="answer-cell"></td><td></td><td>□ sure □ not sure</td></tr>
+            <tr><td>unhealthy</td><td class="answer-cell"></td><td></td><td>□ sure □ not sure</td></tr>
+            <tr><td>various</td><td class="answer-cell"></td><td></td><td>□ sure □ not sure</td></tr>
+            <tr><td>work out</td><td class="answer-cell"></td><td></td><td>□ sure □ not sure</td></tr>
+            <tr><td>contest</td><td class="answer-cell"></td><td></td><td>□ sure □ not sure</td></tr>
+            <tr><td>legend</td><td class="answer-cell"></td><td></td><td>□ sure □ not sure</td></tr>
+            <tr><td>immigrant</td><td class="answer-cell"></td><td></td><td>□ sure □ not sure</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="sheet">
+        <div class="page-label">Unit 2A · Part 2</div>
+        <h2>Part 2 · Sound, Syllables & Word Parts</h2>
+        <div class="box blue">
+          <h3>Read aloud. Use / to divide syllables and underline the stressed syllable.</h3>
+          <p class="small">Notice the noun/verb stress changes in record and contest.</p>
+        </div>
+        <table style="margin-top: 12px">
+          <thead><tr><th>Word</th><th>Syllables + stress</th><th>Sound / spelling rule</th><th>Word parts and meaning</th></tr></thead>
+          <tbody>
+            <tr><td>argue</td><td class="answer-cell"></td><td>-ue supports /yoo/.</td><td></td></tr>
+            <tr><td>athlete</td><td class="answer-cell"></td><td>Two syllables.</td><td></td></tr>
+            <tr><td>exactly</td><td class="answer-cell"></td><td>Keep /t/ before -ly.</td><td></td></tr>
+            <tr><td>record (n.)</td><td class="answer-cell"></td><td>Stress the first syllable.</td><td></td></tr>
+            <tr><td>record (v.)</td><td class="answer-cell"></td><td>Stress the second syllable.</td><td></td></tr>
+            <tr><td>tradition</td><td class="answer-cell"></td><td>-tion sounds like /shun/.</td><td></td></tr>
+            <tr><td>unhealthy</td><td class="answer-cell"></td><td>Keep health spelling.</td><td></td></tr>
+            <tr><td>various</td><td class="answer-cell"></td><td>-ous marks an adjective.</td><td></td></tr>
+            <tr><td>work out</td><td class="answer-cell"></td><td>Strong stress on out.</td><td></td></tr>
+            <tr><td>contest (n.)</td><td class="answer-cell"></td><td>Stress the first syllable.</td><td></td></tr>
+            <tr><td>contest (v.)</td><td class="answer-cell"></td><td>Stress the second syllable.</td><td></td></tr>
+            <tr><td>legend</td><td class="answer-cell"></td><td>g sounds like /dzh/.</td><td></td></tr>
+            <tr><td>immigrant</td><td class="answer-cell"></td><td>Double m after im-.</td><td></td></tr>
+          </tbody>
+        </table>
+        <div class="box" style="margin-top: 12px">
+          <ol class="prompt-list">
+            <li>How does the stress change in <em>record</em>? <span class="blank"></span></li>
+            <li>How does the stress change in <em>contest</em>? <span class="blank"></span></li>
+            <li>Which word is often mispronounced as three syllables? <span class="blank"></span></li>
+            <li>Write one pronunciation tip for a classmate. <span class="blank"></span></li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="sheet">
+        <div class="page-label">Unit 2A · Part 3</div>
+        <h2>Part 3 · Context Meaning</h2>
+        <div class="box soft"><strong>Use each target word once. Change the form if needed.</strong></div>
+        <ol class="prompt-list" style="margin-top: 16px">
+          <li>Four immigrants began to <span class="blank"></span> about their new country.</li>
+          <li>A trained <span class="blank"></span> needs speed, strength, and practice.</li>
+          <li>Speed eating is <span class="blank"></span> what its name suggests.</li>
+          <li>The winner hopes to break the world <span class="blank"></span>.</li>
+          <li>The event has become a yearly <span class="blank"></span>.</li>
+          <li>Eating too much too quickly can be <span class="blank"></span>.</li>
+          <li>Eating contests can involve <span class="blank"></span> foods.</li>
+          <li>Many athletes <span class="blank"></span> regularly.</li>
+          <li>Nathan's Famous Hot Dog Eating <span class="blank"></span> is held every July.</li>
+          <li>According to <span class="blank"></span>, the event began with an argument.</li>
+          <li>An <span class="blank"></span> has moved into a new country to live.</li>
+        </ol>
+        <h2>Context clue</h2>
+        <div class="box">Choose one sentence. Which nearby words helped you?</div>
+        <div class="long-lines"><span></span><span></span><span></span></div>
+      </section>
+
+      <section class="sheet">
+        <div class="page-label">Unit 2A · Part 4</div>
+        <h2>Part 4 · Collocation Builder</h2>
+        <table>
+          <thead><tr><th>Word</th><th>Good partners</th><th>My phrase</th><th>My sentence</th></tr></thead>
+          <tbody>
+            <tr><td>argue</td><td>argue about / argue with</td><td></td><td></td></tr>
+            <tr><td>athlete</td><td>professional / Olympic athlete</td><td></td><td></td></tr>
+            <tr><td>exactly</td><td>exactly right / exactly what</td><td></td><td></td></tr>
+            <tr><td>record</td><td>break / set / hold a record</td><td></td><td></td></tr>
+            <tr><td>tradition</td><td>family / local / yearly tradition</td><td></td><td></td></tr>
+            <tr><td>unhealthy</td><td>diet / habit / lifestyle</td><td></td><td></td></tr>
+            <tr><td>various</td><td>foods / reasons / methods</td><td></td><td></td></tr>
+            <tr><td>work out</td><td>regularly / at a gym</td><td></td><td></td></tr>
+            <tr><td>contest</td><td>enter / hold / win a contest</td><td></td><td></td></tr>
+            <tr><td>legend</td><td>according to / local legend</td><td></td><td></td></tr>
+            <tr><td>immigrant</td><td>immigrant family / community</td><td></td><td></td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="sheet">
+        <div class="page-label">Unit 2A · Part 5</div>
+        <h2>Part 5 · Word Family</h2>
+        <h3>A. The contest family</h3>
+        <div class="origin-tree" style="margin-top: 12px">
+          <div class="origin-node"><strong>Latin</strong><br />con- = together<br />testari = call to witness</div>
+          <div class="origin-arrow">→</div>
+          <div class="origin-node"><strong>Earlier meaning</strong><br />challenge or argue against a claim</div>
+          <div class="origin-arrow">→</div>
+          <div class="origin-node"><strong>Modern meaning</strong><br />an event in which people try to win</div>
+        </div>
+        <table style="margin-top: 12px">
+          <thead><tr><th>Word</th><th>Suffix</th><th>Meaning</th><th>Complete the sentence</th></tr></thead>
+          <tbody>
+            <tr><td>contestant</td><td></td><td></td><td>Each contestant...</td></tr>
+            <tr><td>contested</td><td></td><td></td><td>The result was contested because...</td></tr>
+            <tr><td>contestation</td><td></td><td></td><td>The formal contestation concerned...</td></tr>
+          </tbody>
+        </table>
+
+        <h2>Contest and competition: write your own distinction</h2>
+        <div class="meaning-boxes">
+          <div class="meaning-box"><strong>contest</strong></div>
+          <div class="meaning-box"><strong>competition</strong></div>
+        </div>
+
+        <h2>B. Build and compare.</h2>
+        <div class="box">
+          <ol class="prompt-list">
+            <li><strong>-ant</strong> means a person who ________. So a contestant is ________.</li>
+            <li><strong>-ed</strong> shows a past action or state. A contested result is a result that ________.</li>
+            <li><strong>-ation</strong> forms a noun. Contestation means the act of formally ________.</li>
+            <li>Which word is most formal and least common in everyday speech? <span class="blank"></span></li>
+          </ol>
+        </div>
+
+        <h2>C. Build more word families.</h2>
+        <table>
+          <thead><tr><th>Base</th><th>Related word</th><th>Word parts</th><th>Meaning change</th></tr></thead>
+          <tbody>
+            <tr><td>argue</td><td>argument</td><td>argue + -ment</td><td></td></tr>
+            <tr><td>athlete</td><td>athletic</td><td>athlete + -ic</td><td></td></tr>
+            <tr><td>exact</td><td>exactly</td><td>exact + -ly</td><td></td></tr>
+            <tr><td>tradition</td><td>traditional</td><td>tradition + -al</td><td></td></tr>
+            <tr><td>health</td><td>unhealthy</td><td>un- + health + -y</td><td></td></tr>
+            <tr><td>vary</td><td>various / variety</td><td>vary + -ous / -ety</td><td></td></tr>
+            <tr><td>work out</td><td>workout</td><td>phrasal verb → noun</td><td></td></tr>
+            <tr><td>immigrate</td><td>immigrant / immigration</td><td>immigr- + -ant / -ation</td><td></td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="sheet">
+        <div class="page-label">Unit 2A · Part 6</div>
+        <h2>Part 6 · Output Task</h2>
+        <div class="box soft">
+          <p>
+            Write <strong>6-8 sentences</strong> about a speed-eating contest.
+            Use at least <strong>six target words</strong>. Include
+            <strong>contest</strong> and <strong>competition</strong>, and show
+            that you understand their difference.
+          </p>
+        </div>
+        <div class="writing-box"></div>
+        <h2>Self-check</h2>
+        <div class="box blue">
+          <p>□ 6-8 complete sentences &nbsp;&nbsp; □ at least six target words</p>
+          <p style="margin-top: 10px">□ contest / competition are used clearly</p>
+          <p style="margin-top: 10px">□ spelling and punctuation checked</p>
+        </div>
+      </section>
+
+      <section class="sheet answer-key">
+        <header>
+          <div>
+            <h1>Unit 2A · Teacher Notes / Answer Key</h1>
+            <div class="meta"><p>Suggested answers; accept reasonable alternatives.</p></div>
+          </div>
+        </header>
+        <h2>Part 1</h2>
+        <p class="answer">argue A; athlete B; exactly C; record D; tradition E; unhealthy F; various G; work out H; contest I; legend J; immigrant K.</p>
+        <h2>Part 2</h2>
+        <p class="answer">AR/gue; ATH/lete; ex/ACT/ly; RE/cord (noun), re/CORD (verb); tra/DI/tion; un/HEALTH/y; VAR/i/ous; work OUT; CON/test (noun), con/TEST (verb); LEG/end; IM/mi/grant.</p>
+        <h2>Part 3</h2>
+        <p class="answer">1 argue; 2 athlete; 3 exactly; 4 record; 5 tradition; 6 unhealthy; 7 various; 8 work out; 9 contest; 10 legend; 11 immigrant.</p>
+        <h2>Part 5</h2>
+        <p class="small">Contest usually names a specific organized event. Competition can name an event or the general process of trying to win against others.</p>
+        <p class="small" style="margin-top: 8px">contestant = contest + -ant; contested = contest + -ed; contestation = contest + -ation. Contestation is the most formal and least common form.</p>
+      </section>
+    </main>
+  </body>
+</html>

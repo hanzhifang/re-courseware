@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reading Explorer Game Center</title>
+  <style>
+    :root {
+      --ink: #26332e;
+      --muted: #66736c;
+      --paper: #fffdf7;
+      --leaf: #237d59;
+      --leaf-soft: #dcefe5;
+      --sun: #f4c94c;
+      --coral: #e96f5d;
+      --blue: #4e82ba;
+      --line: #cbd8d0;
+      --shadow: 0 12px 28px rgba(35, 61, 49, .12);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: "Avenir Next", "Trebuchet MS", Arial, sans-serif;
+      background:
+        linear-gradient(rgba(255,255,255,.54), rgba(255,255,255,.54)),
+        repeating-linear-gradient(0deg, transparent 0 39px, rgba(54,116,83,.07) 40px),
+        repeating-linear-gradient(90deg, transparent 0 39px, rgba(54,116,83,.07) 40px),
+        #eef4ee;
+    }
+
+    button, a { font: inherit; }
+    button:focus-visible, a:focus-visible { outline: 4px solid rgba(78,130,186,.35); outline-offset: 3px; }
+    .app { min-height: 100vh; }
+    .topbar {
+      position: sticky;
+      z-index: 20;
+      top: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      min-height: 78px;
+      padding: 14px clamp(18px, 4vw, 58px);
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,253,247,.94);
+      backdrop-filter: blur(14px);
+    }
+    .brand { display: flex; align-items: center; gap: 14px; min-width: 0; }
+    .brand-mark {
+      display: grid;
+      width: 48px;
+      height: 48px;
+      place-items: center;
+      border: 2px solid #253b32;
+      border-radius: 8px;
+      background: var(--sun);
+      box-shadow: 4px 4px 0 #253b32;
+      font-size: 25px;
+    }
+    .brand h1 { margin: 0; font-size: clamp(22px, 2.5vw, 34px); letter-spacing: 0; }
+    .brand p { margin: 2px 0 0; color: var(--muted); font-size: 14px; font-weight: 700; }
+    .total-score {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-width: 138px;
+      padding: 10px 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      font-weight: 900;
+    }
+    .total-score strong { font-size: 22px; }
+    .screen { display: none; padding: clamp(22px, 4vw, 58px); }
+    .screen.active { display: block; }
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 18px;
+      max-width: 1240px;
+      margin: 0 auto 26px;
+    }
+    .section-head h2 { margin: 0; font-size: clamp(30px, 5vw, 58px); line-height: 1; }
+    .section-head p { max-width: 620px; margin: 10px 0 0; color: var(--muted); font-size: 17px; font-weight: 650; }
+    .unit-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      max-width: 1240px;
+      margin: 0 auto;
+    }
+    .unit-card {
+      position: relative;
+      min-height: 165px;
+      overflow: hidden;
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255,255,255,.84);
+      color: var(--ink);
+      text-align: left;
+    }
+    button.unit-card { cursor: pointer; transition: transform .18s ease, box-shadow .18s ease; }
+    button.unit-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+    .unit-card.active-unit { border: 2px solid var(--leaf); background: var(--paper); box-shadow: var(--shadow); }
+    .unit-card.active-unit::after {
+      position: absolute;
+      right: -28px;
+      bottom: -40px;
+      width: 132px;
+      height: 132px;
+      border-radius: 50%;
+      background: var(--leaf-soft);
+      content: "";
+    }
+    .unit-number { display: inline-flex; align-items: center; gap: 8px; color: var(--leaf); font-size: 13px; font-weight: 900; text-transform: uppercase; }
+    .unit-card h3 { position: relative; z-index: 1; margin: 18px 0 7px; font-size: 23px; line-height: 1.12; }
+    .unit-card p { position: relative; z-index: 1; margin: 0; color: var(--muted); font-weight: 700; }
+    .unit-score { position: absolute; z-index: 2; right: 14px; bottom: 13px; color: var(--leaf); font-weight: 900; }
+    .coming { opacity: .62; }
+    .coming .unit-number { color: #758079; }
+
+    .back-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 44px;
+      padding: 8px 13px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      cursor: pointer;
+      font-weight: 900;
+    }
+    .unit-hero {
+      display: grid;
+      grid-template-columns: 1.25fr .75fr;
+      max-width: 1240px;
+      margin: 0 auto 20px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #173f31;
+      color: #fff;
+      box-shadow: var(--shadow);
+    }
+    .unit-hero-copy { padding: clamp(26px, 5vw, 58px); }
+    .unit-hero-copy span { color: #acd9bd; font-weight: 900; text-transform: uppercase; }
+    .unit-hero-copy h2 { margin: 12px 0 10px; font-size: clamp(38px, 6vw, 72px); line-height: .95; }
+    .unit-hero-copy p { max-width: 600px; margin: 0; color: #d8e9df; font-size: 18px; font-weight: 700; }
+    .hero-score {
+      display: grid;
+      align-content: center;
+      gap: 6px;
+      padding: 36px;
+      background: var(--sun);
+      color: #26332e;
+      text-align: center;
+    }
+    .hero-score strong { font-size: clamp(54px, 8vw, 96px); line-height: 1; }
+    .hero-score span { font-size: 16px; font-weight: 900; text-transform: uppercase; }
+    .game-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; max-width: 1240px; margin: 0 auto; }
+    .game-card { display: grid; grid-template-columns: 150px 1fr; min-height: 240px; overflow: hidden; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); box-shadow: var(--shadow); }
+    .game-visual { display: grid; place-items: center; font-size: 82px; background: #f1c8a8; }
+    .game-card:nth-child(2) .game-visual { background: #dcefe5; }
+    .game-copy { display: flex; flex-direction: column; padding: 24px; }
+    .game-copy small { color: var(--leaf); font-weight: 900; text-transform: uppercase; }
+    .game-copy h3 { margin: 8px 0 6px; font-size: 29px; }
+    .game-copy p { margin: 0; color: var(--muted); font-weight: 650; line-height: 1.45; }
+    .game-meta { display: flex; flex-wrap: wrap; gap: 8px; margin: 15px 0 18px; }
+    .game-meta span { padding: 5px 8px; border: 1px solid var(--line); border-radius: 6px; background: #fff; font-size: 13px; font-weight: 800; }
+    .play-link {
+      align-self: flex-start;
+      margin-top: auto;
+      padding: 10px 16px;
+      border: 2px solid #26332e;
+      border-radius: 8px;
+      background: var(--sun);
+      box-shadow: 3px 3px 0 #26332e;
+      color: #26332e;
+      font-weight: 900;
+      text-decoration: none;
+    }
+    .play-link:active { transform: translate(3px, 3px); box-shadow: none; }
+
+    @media (max-width: 900px) {
+      .unit-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .unit-hero { grid-template-columns: 1fr; }
+      .hero-score { grid-template-columns: auto auto; align-items: center; justify-content: center; }
+      .game-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 560px) {
+      .topbar { align-items: flex-start; }
+      .brand p, .total-score span:last-child { display: none; }
+      .total-score { min-width: auto; }
+      .unit-grid { grid-template-columns: 1fr; }
+      .section-head { align-items: flex-start; flex-direction: column; }
+      .game-card { grid-template-columns: 100px 1fr; }
+      .game-visual { font-size: 58px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">RE</div>
+        <div><h1>Game Center</h1><p>Reading Explorer F</p></div>
+      </div>
+      <div class="total-score"><span aria-hidden="true">★</span><strong id="totalScore">0</strong><span>points</span></div>
+    </header>
+
+    <section id="unitsScreen" class="screen active">
+      <div class="section-head">
+        <div><h2>Choose a Unit</h2><p>Your best scores stay on this device.</p></div>
+      </div>
+      <div id="unitGrid" class="unit-grid"></div>
+    </section>
+
+    <section id="unit2Screen" class="screen">
+      <div class="section-head"><button id="backToUnits" class="back-button" type="button">← All Units</button></div>
+      <div class="unit-hero">
+        <div class="unit-hero-copy"><span>Unit 2</span><h2>Eating Extremes</h2><p>Speed eating, chilies, language skills, and reading challenges.</p></div>
+        <div class="hero-score"><strong id="unit2Total">0</strong><span>Unit points</span></div>
+      </div>
+      <div class="game-grid">
+        <article class="game-card">
+          <div class="game-visual" aria-hidden="true">🌭</div>
+          <div class="game-copy">
+            <small>Reading 2A</small><h3>Food Challenge</h3>
+            <p>Vocabulary, passage clues, and the world of speed eating.</p>
+            <div class="game-meta"><span id="u2aStatus">Not played</span><span id="u2aScore">0 points</span></div>
+            <a class="play-link" href="./unit2a-food-challenge.html">Play 2A →</a>
+          </div>
+        </article>
+        <article class="game-card">
+          <div class="game-visual" aria-hidden="true">🫑</div>
+          <div class="game-copy">
+            <small>Reading 2B</small><h3>Pepper Challenge</h3>
+            <p>Vocabulary, pronoun reference, and The Hottest Chilies.</p>
+            <div class="game-meta"><span id="u2bStatus">Not played</span><span id="u2bScore">0 sweet peppers</span></div>
+            <a class="play-link" href="./unit2b-pepper-challenge.html">Play 2B →</a>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const topics = ["Mysteries", "Eating Extremes", "Cool Jobs", "Shipwrecks", "Science Investigators", "Plants and Trees", "Mind’s Eye", "Animal Wonders", "Building Beauty", "Forces of Nature", "Giants of the Past", "Technology"];
+    const progressKey = "re-reading-games-v1";
+    const unitGrid = document.querySelector("#unitGrid");
+    const unitsScreen = document.querySelector("#unitsScreen");
+    const unit2Screen = document.querySelector("#unit2Screen");
+
+    function getProgress() {
+      try { return JSON.parse(localStorage.getItem(progressKey)) || {}; }
+      catch (error) { return {}; }
+    }
+
+    function ingestReturnedScore() {
+      const params = new URLSearchParams(location.search);
+      const score2A = Number(params.get("u2a"));
+      const score2B = Number(params.get("u2b"));
+      if (!Number.isFinite(score2A) && !Number.isFinite(score2B)) return;
+      const progress = getProgress();
+      progress.unit2 ||= {};
+      if (Number.isFinite(score2A)) {
+        const previous = progress.unit2.unit2a || {};
+        progress.unit2.unit2a = { ...previous, completed: true, score: Math.max(previous.score || 0, score2A) };
+      }
+      if (Number.isFinite(score2B)) {
+        const previous = progress.unit2.unit2b || {};
+        progress.unit2.unit2b = { ...previous, completed: true, score: Math.max(previous.score || 0, score2B) };
+      }
+      try { localStorage.setItem(progressKey, JSON.stringify(progress)); } catch (error) { /* Some file:// browsers restrict storage. */ }
+      history.replaceState(null, "", location.pathname);
+    }
+
+    function renderScores() {
+      const progress = getProgress();
+      const unit2 = progress.unit2 || {};
+      const score2A = unit2.unit2a?.score || 0;
+      const score2B = unit2.unit2b?.score || 0;
+      const total = score2A + score2B;
+      document.querySelector("#totalScore").textContent = total;
+      document.querySelector("#unit2Total").textContent = total;
+      document.querySelector("#u2aScore").textContent = `${score2A} points`;
+      document.querySelector("#u2bScore").textContent = `${score2B} sweet peppers`;
+      document.querySelector("#u2aStatus").textContent = unit2.unit2a?.completed ? "Completed" : "Not played";
+      document.querySelector("#u2bStatus").textContent = unit2.unit2b?.completed ? "Completed" : "Not played";
+      const cardScore = document.querySelector("[data-unit='2'] .unit-score");
+      if (cardScore) cardScore.textContent = `${total} pts`;
+    }
+
+    function renderUnits() {
+      unitGrid.innerHTML = topics.map((topic, index) => {
+        const unit = index + 1;
+        const active = unit === 2;
+        return `${active ? "<button" : "<article"} class="unit-card ${active ? "active-unit" : "coming"}" ${active ? "type='button' data-unit='2'" : ""}>
+          <span class="unit-number">Unit ${unit}${active ? " · Available" : " · Coming soon"}</span>
+          <h3>${topic}</h3>
+          <p>${active ? "2 games" : "—"}</p>
+          ${active ? '<span class="unit-score">0 pts</span>' : ""}
+        </${active ? "button" : "article"}>`;
+      }).join("");
+      document.querySelector("[data-unit='2']").addEventListener("click", showUnit2);
+    }
+
+    function showUnit2() {
+      unitsScreen.classList.remove("active");
+      unit2Screen.classList.add("active");
+      renderScores();
+      window.scrollTo({ top: 0, behavior: "instant" });
+    }
+
+    document.querySelector("#backToUnits").addEventListener("click", () => {
+      unit2Screen.classList.remove("active");
+      unitsScreen.classList.add("active");
+      renderScores();
+      window.scrollTo({ top: 0, behavior: "instant" });
+    });
+    window.addEventListener("pageshow", renderScores);
+    ingestReturnedScore();
+    renderUnits();
+    renderScores();
+  </script>
+</body>
+</html>

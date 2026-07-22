@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#ffffff" />
+    <title>RE-F Interactive Courseware</title>
+    <link rel="stylesheet" href="styles.css?v=20260721-editorial-redesign" />
+  </head>
+  <body>
+    <main class="courseware" data-screen="cover">
+      <section class="screen cover-screen is-active" data-view="cover">
+        <button class="cover-enter" type="button" aria-label="进入目录">
+          <img id="coverImage" class="cover-image" src="../RE/REFcover.png" alt="RE-F cover" />
+          <span class="missing-art" id="coverFallback">
+            <strong>RE-F</strong>
+            <small>请把 REFcover.png 放入 RE 文件夹</small>
+          </span>
+          <span class="click-hint">点击任意位置进入目录</span>
+        </button>
+      </section>
+
+      <section class="screen menu-screen" data-view="menu" aria-labelledby="menuTitle">
+        <header class="menu-header">
+          <button class="icon-button ghost" id="menuBackCover" type="button" aria-label="返回封面" title="返回封面">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg>
+          </button>
+          <div>
+            <h1 id="menuTitle">RE-F 课程目录</h1>
+            <p>选择一个单元开始课件。</p>
+          </div>
+        </header>
+        <div class="unit-grid" id="unitGrid" aria-label="12个单元"></div>
+      </section>
+
+      <section class="screen lesson-screen" data-view="lesson" aria-labelledby="lessonTitle">
+        <header class="lesson-topbar">
+          <div class="lesson-title">
+            <button class="icon-button ghost" id="backToMenu" type="button" aria-label="返回目录" title="返回目录">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg>
+            </button>
+            <div>
+              <h1 id="lessonTitle">Unit 1</h1>
+              <p id="lessonSubtitle">单元首页</p>
+            </div>
+          </div>
+          <div class="lesson-actions">
+            <nav class="toolbox" aria-label="课件标注工具">
+              <div class="tool-group" role="group" aria-label="工具">
+                <button class="tool-button is-active" data-tool="pen" type="button" aria-label="画笔" title="画笔">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l4.5-1 10-10a2.1 2.1 0 0 0-3-3l-10 10L4 20z" /><path d="M13.5 6.5l4 4" /></svg>
+                </button>
+                <button class="tool-button" data-tool="text" type="button" aria-label="文字" title="添加文字">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16" /><path d="M12 6v12" /><path d="M9 18h6" /></svg>
+                </button>
+                <button class="tool-button" data-tool="move" type="button" aria-label="移动" title="移动文字">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18" /><path d="M3 12h18" /><path d="M8 7l4-4 4 4" /><path d="M8 17l4 4 4-4" /><path d="M7 8l-4 4 4 4" /><path d="M17 8l4 4-4 4" /></svg>
+                </button>
+                <button class="tool-button" data-tool="eraser" type="button" aria-label="橡皮" title="橡皮">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 15l7-7a2.8 2.8 0 0 1 4 0l5 5-7 7H8l-4-5z" /><path d="M14 20h6" /></svg>
+                </button>
+              </div>
+
+              <div class="tool-group swatches" role="group" aria-label="颜色">
+                <button class="swatch is-active" data-color="#ef4444" style="--swatch: #ef4444" type="button" aria-label="红色" title="红色"></button>
+                <button class="swatch" data-color="#16a34a" style="--swatch: #16a34a" type="button" aria-label="绿色" title="绿色"></button>
+                <button class="swatch" data-color="#2563eb" style="--swatch: #2563eb" type="button" aria-label="蓝色" title="蓝色"></button>
+                <button class="swatch" data-color="#111827" style="--swatch: #111827" type="button" aria-label="黑色" title="黑色"></button>
+              </div>
+
+              <label class="size-control" title="笔迹粗细">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16" /><path d="M7 16h10" /><path d="M10 12h4" /></svg>
+                <input id="brushSize" type="range" min="2" max="24" value="6" aria-label="笔迹粗细" />
+              </label>
+
+              <div class="tool-group" role="group" aria-label="操作">
+                <button class="tool-button" id="undoButton" type="button" aria-label="撤销" title="撤销">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7H4v5" /><path d="M4 12a8 8 0 1 0 2.35-5.65L4 8.7" /></svg>
+                </button>
+                <button class="tool-button" id="clearButton" type="button" aria-label="清空标注" title="清空标注">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14" /><path d="M10 11v6" /><path d="M14 11v6" /><path d="M7 7l1 13h8l1-13" /><path d="M9 7V4h6v3" /></svg>
+                </button>
+              </div>
+            </nav>
+            <div class="page-jump-menu" id="pageJumpMenu" hidden>
+              <button class="page-jump-toggle" id="pageJumpToggle" type="button" aria-label="打开常用页面" aria-expanded="false" aria-controls="pageJumpPanel" title="常用页面">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6" rx="1" /><rect x="14" y="4" width="6" height="6" rx="1" /><rect x="4" y="14" width="6" height="6" rx="1" /><rect x="14" y="14" width="6" height="6" rx="1" /></svg>
+              </button>
+              <section class="page-jump-panel" id="pageJumpPanel" aria-label="常用页面" hidden>
+                <div class="page-jump-heading">
+                  <strong>常用页面</strong>
+                  <span>快速跳转</span>
+                </div>
+                <div class="page-jump-list">
+                  <button type="button" class="page-jump-choice" data-quick-target="unit-start">Unit 2 · 单元首页</button>
+                  <button type="button" class="page-jump-choice" data-quick-target="2a-reading">2A · 阅读首页</button>
+                  <button type="button" class="page-jump-choice" data-quick-target="2a-cards">2A · 单词卡 · argue</button>
+                  <button type="button" class="page-jump-choice" data-quick-target="2b-reading">2B · 阅读首页</button>
+                  <button type="button" class="page-jump-choice" data-quick-target="2b-cards">2B · 单词卡 · experience</button>
+                </div>
+              </section>
+            </div>
+          </div>
+        </header>
+
+        <div class="lesson-stage-wrap">
+          <div class="lesson-stage" id="lessonStage">
+            <img id="lessonImage" class="lesson-image" src="../RE/unit1.png" alt="Unit 1 cover" />
+            <div id="worksheetPage" class="lesson-worksheet" hidden></div>
+            <div class="missing-art unit-missing" id="lessonFallback">
+              <strong>Unit 1</strong>
+              <small>请把 unit1.png 放入 RE 文件夹</small>
+            </div>
+            <canvas id="annotationCanvas" aria-label="绘图标注层"></canvas>
+            <div class="text-layer" id="textLayer" aria-label="文字标注层"></div>
+          </div>
+          <div class="page-nav is-hidden" id="pageNav" aria-label="页面导航">
+            <button class="icon-button ghost" id="prevPage" type="button" aria-label="上一页" title="上一页">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg>
+            </button>
+            <span id="pageCounter">1 / 1</span>
+            <button class="icon-button ghost" id="nextPage" type="button" aria-label="下一页" title="下一页">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="worksheet-pages.js?v=20260709-unit2a-inline-context"></script>
+    <script src="vocab-card-pages.js?v=20260711-vocabulary-part-of-speech"></script>
+    <script src="unit2b-vocab-card-pages.js?v=20260721-unit2b-human-pronunciations"></script>
+    <script src="app.js?v=20260722-unit2b-reading-skills"></script>
+  </body>
+</html>

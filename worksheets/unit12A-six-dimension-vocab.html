@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Unit 12A Six-Dimension Vocabulary Worksheet</title>
+    <style>
+      :root {
+        --ink: #17211b;
+        --muted: #66736b;
+        --line: #d8e1d8;
+        --soft: #f3f8f1;
+        --green: #188654;
+        --yellow: #ffe56d;
+        --blue: #eaf2ff;
+        --paper: #ffffff;
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: #edf4ec;
+        color: var(--ink);
+      }
+
+      .page {
+        width: min(100%, 980px);
+        margin: 0 auto;
+        padding: 28px;
+      }
+
+      .sheet {
+        min-height: 1380px;
+        padding: 30px;
+        border: 1px solid var(--line);
+        background: var(--paper);
+        box-shadow: 0 16px 42px rgba(30, 72, 49, 0.12);
+      }
+
+      header {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 18px;
+        align-items: start;
+        padding-bottom: 18px;
+        border-bottom: 4px solid var(--yellow);
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        font-size: 30px;
+        line-height: 1.08;
+      }
+
+      h2 {
+        margin: 24px 0 12px;
+        font-size: 19px;
+      }
+
+      h3 {
+        font-size: 15px;
+      }
+
+      .meta {
+        display: grid;
+        gap: 6px;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.45;
+      }
+
+      .name-box {
+        display: grid;
+        gap: 10px;
+        min-width: 250px;
+        font-size: 14px;
+      }
+
+      .line {
+        display: inline-block;
+        width: 170px;
+        border-bottom: 1px solid var(--ink);
+        transform: translateY(-2px);
+      }
+
+      .dimension-bar {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 6px;
+        margin-top: 16px;
+      }
+
+      .dimension-bar span {
+        min-height: 34px;
+        padding: 6px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--soft);
+        color: var(--green);
+        font-size: 12px;
+        font-weight: 800;
+        text-align: center;
+      }
+
+      .word-bank {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 12px;
+      }
+
+      .word-bank span {
+        padding: 7px 10px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: #fff;
+        font-weight: 800;
+      }
+
+      .box {
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+      }
+
+      .soft {
+        background: var(--soft);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+      }
+
+      th,
+      td {
+        padding: 8px;
+        border: 1px solid var(--line);
+        vertical-align: top;
+        font-size: 13px;
+        line-height: 1.35;
+      }
+
+      th {
+        background: var(--green);
+        color: #fff;
+        font-size: 12px;
+        text-align: left;
+      }
+
+      .blank {
+        display: inline-block;
+        min-width: 120px;
+        border-bottom: 1px solid var(--ink);
+      }
+
+      .long-lines {
+        display: grid;
+        gap: 16px;
+        margin-top: 10px;
+      }
+
+      .long-lines span {
+        display: block;
+        height: 24px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .two-col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+
+      .prompt-list {
+        display: grid;
+        gap: 8px;
+        padding-left: 20px;
+        margin: 0;
+        line-height: 1.5;
+      }
+
+      .small {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .answer-key {
+        margin-top: 24px;
+        padding-top: 16px;
+        border-top: 2px dashed var(--line);
+      }
+
+      @media print {
+        body {
+          background: #fff;
+        }
+
+        .page {
+          width: 100%;
+          padding: 0;
+        }
+
+        .sheet {
+          min-height: auto;
+          border: 0;
+          box-shadow: none;
+          page-break-after: always;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="sheet">
+        <header>
+          <div>
+            <h1>RE Foundations · Unit 12A Vocabulary</h1>
+            <div class="meta">
+              <p>Theme: Technology · Reading: The Robots are Coming!</p>
+              <p>Six-Dimension Vocabulary Worksheet 初稿</p>
+            </div>
+          </div>
+          <div class="name-box">
+            <div>Name: <span class="line"></span></div>
+            <div>Date: <span class="line"></span></div>
+            <div>Score: <span class="line"></span></div>
+          </div>
+        </header>
+
+        <div class="dimension-bar" aria-label="six vocabulary dimensions">
+          <span>1 音形<br />Sound & Form</span>
+          <span>2 核心义<br />Core Meaning</span>
+          <span>3 语境义<br />Context</span>
+          <span>4 搭配<br />Collocation</span>
+          <span>5 词族<br />Word Family</span>
+          <span>6 输出<br />Use</span>
+        </div>
+
+        <h2>Word Bank</h2>
+        <div class="word-bank">
+          <span>act</span>
+          <span>daily</span>
+          <span>factory</span>
+          <span>operate</span>
+          <span>rough</span>
+          <span>sign</span>
+          <span>simple</span>
+          <span>uncomfortable</span>
+        </div>
+
+        <h2>Part 1 · Core Meaning Match</h2>
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 22%">Word</th>
+              <th>Choose or write the best Chinese meaning</th>
+              <th style="width: 26%">My confidence</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>act</td><td></td><td>□ sure □ not sure</td></tr>
+            <tr><td>daily</td><td></td><td>□ sure □ not sure</td></tr>
+            <tr><td>factory</td><td></td><td>□ sure □ not sure</td></tr>
+            <tr><td>operate</td><td></td><td>□ sure □ not sure</td></tr>
+            <tr><td>rough</td><td></td><td>□ sure □ not sure</td></tr>
+            <tr><td>sign</td><td></td><td>□ sure □ not sure</td></tr>
+            <tr><td>simple</td><td></td><td>□ sure □ not sure</td></tr>
+            <tr><td>uncomfortable</td><td></td><td>□ sure □ not sure</td></tr>
+          </tbody>
+        </table>
+
+        <h2>Part 2 · Sound, Syllables & Word Parts</h2>
+        <div class="box soft">
+          <h3>A. Read each word aloud. Then mark the syllables and stress.</h3>
+          <p class="small" style="margin-top: 6px">
+            Use / to divide syllables. Circle or underline the stressed syllable.
+            If the word has a prefix, suffix, or useful word part, write its meaning.
+            If it does not, write one pronunciation or spelling rule you notice.
+          </p>
+        </div>
+        <table style="margin-top: 10px">
+          <thead>
+            <tr>
+              <th style="width: 15%">Word</th>
+              <th style="width: 21%">Syllables + stress</th>
+              <th style="width: 25%">Sound / spelling rule</th>
+              <th>Word part meaning</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>act</td>
+              <td></td>
+              <td>final sound group: -ct</td>
+              <td>no clear prefix/suffix</td>
+            </tr>
+            <tr>
+              <td>daily</td>
+              <td></td>
+              <td>ai sounds like /ay/</td>
+              <td>-ly = related to time or manner</td>
+            </tr>
+            <tr>
+              <td>factory</td>
+              <td></td>
+              <td>c sounds like /k/ before t</td>
+              <td>factory = a place where things are made</td>
+            </tr>
+            <tr>
+              <td>operate</td>
+              <td></td>
+              <td>final -ate often marks a verb</td>
+              <td>oper- / operate = work, run, control</td>
+            </tr>
+            <tr>
+              <td>rough</td>
+              <td></td>
+              <td>ough sounds like /uff/</td>
+              <td>no clear prefix/suffix</td>
+            </tr>
+            <tr>
+              <td>sign</td>
+              <td></td>
+              <td>g is silent</td>
+              <td>signal / signature are related words</td>
+            </tr>
+            <tr>
+              <td>simple</td>
+              <td></td>
+              <td>-le can make a final syllable</td>
+              <td>simple / simply are related words</td>
+            </tr>
+            <tr>
+              <td>uncomfortable</td>
+              <td></td>
+              <td>long word: slow down and chunk it</td>
+              <td>un- = not; comfort = feel good; -able = can be</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="box" style="margin-top: 10px">
+          <h3>B. Challenge: choose 3 words and write a pronunciation tip for a classmate.</h3>
+          <div class="long-lines">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+
+        <h2>Part 3 · Context Meaning</h2>
+        <div class="box soft">
+          <ol class="prompt-list">
+            <li>A robot can <span class="blank"></span> in a play, but it cannot feel like a person.</li>
+            <li>Some robots work in a <span class="blank"></span> every day.</li>
+            <li>This machine is easy to use. It is very <span class="blank"></span>.</li>
+            <li>The robot can <span class="blank"></span> without a human driver.</li>
+            <li>The road is not smooth. It is <span class="blank"></span>.</li>
+            <li>I saw a warning <span class="blank"></span> near the robot.</li>
+          </ol>
+        </div>
+
+        <h2>Part 4 · Collocation Builder</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Word</th>
+              <th>Good partners</th>
+              <th>Make one phrase</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>daily</td><td>life / work / routine</td><td></td></tr>
+            <tr><td>operate</td><td>a machine / a robot / safely</td><td></td></tr>
+            <tr><td>sign</td><td>a warning / a road / a stop</td><td></td></tr>
+            <tr><td>rough</td><td>surface / road / weather</td><td></td></tr>
+          </tbody>
+        </table>
+
+        <h2>Part 5 · Word Family</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Base word</th>
+              <th>Related form</th>
+              <th>Meaning clue</th>
+              <th>Your sentence</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>comfort</td><td>comfortable / uncomfortable</td><td>feel good / not feel good</td><td></td></tr>
+            <tr><td>simple</td><td>simply</td><td>in an easy way</td><td></td></tr>
+            <tr><td>operate</td><td>operator / operation</td><td>person / action</td><td></td></tr>
+          </tbody>
+        </table>
+
+        <h2>Part 6 · Output Task</h2>
+        <div class="box">
+          <p><strong>Choose 4 words</strong> from the word bank and answer:</p>
+          <p style="margin-top: 8px">What can robots do in people's daily lives?</p>
+          <div class="long-lines">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+
+        <section class="answer-key">
+          <h2>Teacher Notes / Answer Key</h2>
+          <p class="small">
+            Core meanings: act 表演/行动; daily 每日的; factory 工厂; operate 操作/运行;
+            rough 粗糙的/不平的; sign 标志/信号; simple 简单的; uncomfortable 不舒服的。
+          </p>
+          <p class="small" style="margin-top: 8px">
+            Context answers: 1 act, 2 factory, 3 simple, 4 operate, 5 rough, 6 sign.
+          </p>
+          <p class="small" style="margin-top: 8px">
+            Part 2 suggested stress: act; DAI-ly; FAC-to-ry; OP-er-ate; rough; sign;
+            SIM-ple; un-COM-for-ta-ble. Useful rules: rough has /uff/; sign has silent g;
+            uncomfortable = un- + comfort + -able.
+          </p>
+        </section>
+      </section>
+    </main>
+  </body>
+</html>

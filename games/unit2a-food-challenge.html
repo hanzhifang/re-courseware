@@ -1,0 +1,724 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Unit 2A Food Challenge</title>
+  <style>
+    :root {
+      --ink: #3e2945;
+      --cream: #fff9e9;
+      --paper: #fffdf6;
+      --pink: #ef7590;
+      --rose: #b84f70;
+      --mint: #74c9a0;
+      --green: #338b63;
+      --yellow: #ffd45e;
+      --line: #9a526d;
+      --shadow: 0 7px 0 rgba(112, 55, 78, .18), 0 14px 25px rgba(91, 51, 72, .14);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: "Avenir Next", "Trebuchet MS", Arial, sans-serif;
+      background: #f8b6aa;
+    }
+    button { font: inherit; }
+    .game-shell {
+      position: relative;
+      min-height: 100vh;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 12% 17%, rgba(255,255,255,.34) 0 3px, transparent 4px),
+        linear-gradient(#9fd88d 0 49%, #efc2a7 49% 100%);
+      isolation: isolate;
+    }
+    .game-shell::before {
+      position: absolute;
+      z-index: -1;
+      inset: 0;
+      content: "";
+      opacity: .3;
+      background-image: linear-gradient(45deg, transparent 48%, #bd8b86 49% 51%, transparent 52%), linear-gradient(-45deg, transparent 48%, #bd8b86 49% 51%, transparent 52%);
+      background-size: 34px 34px;
+      background-position: 0 52%;
+      pointer-events: none;
+    }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 17px clamp(16px, 3vw, 42px);
+      background: rgba(255, 253, 239, .94);
+      border-bottom: 3px solid rgba(154, 82, 109, .45);
+      box-shadow: 0 3px 0 rgba(255,255,255,.7);
+    }
+    .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .home-link { display: grid; width: 42px; height: 42px; flex: 0 0 auto; place-items: center; border: 2px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); font-weight: 900; text-decoration: none; }
+    .brand-badge { padding: 8px 12px; border: 3px solid var(--line); border-radius: 11px; background: var(--yellow); box-shadow: 0 3px 0 rgba(154,82,109,.28); font-weight: 900; font-size: 13px; letter-spacing: .6px; white-space: nowrap; }
+    .brand h1 { margin: 0; font-size: clamp(19px, 2.3vw, 30px); letter-spacing: .2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .score-row { display: flex; align-items: center; gap: 9px; }
+    .score-pill { display: flex; align-items: center; gap: 7px; min-width: 92px; padding: 8px 13px; border: 3px solid var(--line); border-radius: 12px; background: var(--paper); box-shadow: 0 3px 0 rgba(154,82,109,.24); font-weight: 900; }
+    .score-icon { font-size: 22px; line-height: 1; }
+    .screen { display: none; min-height: calc(100vh - 80px); padding: clamp(18px, 3vw, 42px); }
+    .screen.active { display: block; }
+    #gameScreen { height: calc(100vh - 80px); min-height: 620px; padding: 12px clamp(18px, 3vw, 42px); overflow: hidden; }
+
+    /* Map */
+    .map-intro { max-width: 900px; margin: 0 auto 22px; text-align: center; }
+    .map-intro h2 { margin: 0; font-size: clamp(30px, 5vw, 56px); line-height: 1; color: #472655; text-shadow: 0 3px 0 rgba(255,255,255,.55); }
+    .map-intro p { margin: 12px 0 0; font-size: clamp(16px, 2vw, 21px); font-weight: 700; }
+    .path-map { position: relative; display: grid; grid-template-columns: repeat(3, minmax(210px, 1fr)); gap: clamp(22px, 5vw, 70px); max-width: 1080px; margin: 52px auto 0; }
+    .path-map::before { position: absolute; z-index: -1; top: 49%; left: 12%; width: 76%; height: 12px; content: ""; border-radius: 20px; background: repeating-linear-gradient(90deg, #fff7dc 0 24px, #e99593 24px 40px); border: 3px solid var(--line); transform: translateY(-50%); }
+    .level-card { position: relative; min-height: 265px; padding: 26px 18px 19px; border: 4px solid var(--line); border-radius: 25px; background: var(--paper); box-shadow: var(--shadow); text-align: center; cursor: pointer; transition: transform .18s ease, filter .18s ease; }
+    .level-card:hover:not([disabled]) { transform: translateY(-7px) rotate(-1deg); }
+    .level-card[disabled] { cursor: not-allowed; filter: grayscale(.75); opacity: .72; }
+    .level-number { position: absolute; top: -23px; left: 50%; display: grid; width: 50px; height: 50px; place-items: center; border: 4px solid var(--line); border-radius: 50%; background: var(--yellow); transform: translateX(-50%); box-shadow: 0 4px 0 rgba(154,82,109,.24); font-weight: 900; font-size: 25px; }
+    .food-illustration { margin: 18px auto 8px; font-size: 88px; line-height: 1; filter: drop-shadow(0 6px 0 rgba(91,51,72,.2)); }
+    .level-card h3 { margin: 6px 0 7px; font-size: 25px; }
+    .level-card p { margin: 0; font-size: 15px; font-weight: 700; line-height: 1.4; }
+    .level-status { display: inline-block; margin-top: 12px; padding: 5px 12px; border-radius: 999px; background: #e5f5e9; color: #297050; font-size: 13px; font-weight: 900; }
+    .lock { position: absolute; right: 12px; top: 12px; display: grid; width: 34px; height: 34px; place-items: center; border: 2px solid var(--line); border-radius: 10px; background: #ffe4b4; font-size: 19px; }
+
+    /* Challenge */
+    .challenge { position: relative; display: grid; grid-template-rows: 72px minmax(0, 1fr) 190px; height: 100%; min-height: 0; max-width: 1200px; margin: 0 auto; }
+    .challenge-heading { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 0 6px 7px; }
+    .back-button { padding: 9px 14px; border: 3px solid var(--line); border-radius: 12px; background: var(--paper); color: var(--ink); box-shadow: 0 3px 0 rgba(154,82,109,.22); cursor: pointer; font-weight: 900; }
+    .round-label { display: flex; align-items: center; gap: 11px; font-size: clamp(20px, 2.7vw, 31px); font-weight: 900; }
+    .round-label .emoji { font-size: 35px; }
+    .hearts { font-size: 27px; letter-spacing: 3px; white-space: nowrap; }
+    .progress { position: relative; height: 18px; overflow: hidden; margin: 0 auto 8px; width: min(680px, 88vw); border: 3px solid var(--line); border-radius: 99px; background: #ffe6db; }
+    .progress-fill { width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #ffd25e, #f69d68); transition: width .35s ease; }
+    .question-card { position: relative; z-index: 3; align-self: center; width: min(790px, 100%); max-height: 100%; margin: 0 auto; padding: clamp(16px, 2vw, 26px); border: 4px solid var(--line); border-radius: 25px; background: rgba(255,253,246,.96); box-shadow: var(--shadow); text-align: center; }
+    .question-count { display: inline-block; padding: 5px 11px; border-radius: 9px; background: #e8f5e9; color: var(--green); font-size: 14px; font-weight: 900; }
+    .question-card h2 { margin: 10px 0 16px; font-size: clamp(21px, 2.8vw, 32px); line-height: 1.18; }
+    .answers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px; }
+    .answer { min-height: 54px; padding: 10px 14px; border: 3px solid #d58aa0; border-radius: 15px; background: #fff7e7; box-shadow: 0 4px 0 rgba(154,82,109,.18); color: var(--ink); cursor: pointer; font-size: clamp(16px, 2vw, 20px); font-weight: 900; transition: transform .15s ease, background .15s ease; }
+    .answer:hover:not(:disabled) { transform: translateY(-3px); background: #fff0bd; }
+    .answer:disabled { cursor: default; }
+    .answer.correct { background: #bceac9; border-color: #4ea77a; }
+    .answer.wrong { background: #ffc3bd; border-color: #df6760; }
+    .question-card.shake { animation: wrong-shake .48s ease-in-out; border-color: #e14f5a; box-shadow: 0 0 0 7px rgba(237, 91, 97, .2), var(--shadow); }
+    @keyframes wrong-shake {
+      0%, 100% { transform: translateX(0); }
+      18% { transform: translateX(-12px) rotate(-.6deg); }
+      38% { transform: translateX(11px) rotate(.6deg); }
+      58% { transform: translateX(-8px) rotate(-.4deg); }
+      78% { transform: translateX(6px) rotate(.3deg); }
+    }
+    .feedback { min-height: 30px; margin: 17px 0 0; font-size: 17px; font-weight: 900; }
+    .feedback.good { color: #227750; }
+    .feedback.bad { color: #bd434a; }
+    .pronunciation-panel { display: grid; grid-column: 1 / -1; justify-items: center; width: min(640px, 100%); gap: 13px; padding: 5px 0 2px; }
+    .word-chip { display: inline-flex; justify-self: center; align-items: baseline; gap: 10px; padding: 10px 17px; border: 3px solid #d58aa0; border-radius: 15px; background: #fff7e7; }
+    .word-chip strong { font-size: clamp(28px, 4vw, 43px); }
+    .word-chip span { color: #5d6a63; font-family: Georgia, serif; font-size: 20px; }
+    .pronunciation-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+    .pronunciation-button { min-height: 52px; padding: 10px 15px; border: 3px solid var(--line); border-radius: 13px; box-shadow: 0 4px 0 rgba(154,82,109,.2); color: var(--ink); cursor: pointer; font-weight: 900; }
+    .listen-button { background: #d9f0e4; }
+    .record-button { background: #ffd45e; }
+    .skip-button { background: #f3edf8; }
+    .record-button.is-recording { background: #ef7590; color: #fff; animation: record-pulse 1s infinite; }
+    .playback-button { background: #eee8fa; }
+    .pronunciation-status { width: 100%; min-height: 48px; margin: 0; padding: 10px 14px; border-radius: 12px; background: #f5f0e8; font-size: 15px; font-weight: 800; line-height: 1.35; }
+    .pronunciation-status.good { background: #dff3e4; color: #237351; }
+    .pronunciation-status.bad { background: #ffe3df; color: #b53e49; }
+    @keyframes record-pulse { 50% { transform: scale(1.04); box-shadow: 0 0 0 8px rgba(239,117,144,.18); } }
+    .catch-zone { position: relative; min-height: 0; height: 190px; margin: 0; }
+    .ground { position: absolute; right: -12vw; bottom: 0; left: -12vw; height: 48px; border-top: 4px solid var(--line); background: #a1d58d; }
+    .player { position: absolute; bottom: -3px; left: 50%; width: 185px; height: 185px; transform: translateX(-50%); }
+    .player svg { display: none; }
+    .player-image { display: block; width: 100%; height: 100%; object-fit: contain; }
+    .mouth-target { position: absolute; top: 41%; left: 43%; width: 14%; height: 15%; opacity: 0; pointer-events: none; }
+    .mouth { transform-origin: center; transition: transform .15s ease; }
+    .player.chomp .mouth { transform: scaleY(.42); }
+    .tail { transform-box: fill-box; transform-origin: center; transition: transform .16s ease; }
+    .player.chomp .tail { animation: tail-wag .34s ease-in-out 2; }
+    @keyframes tail-wag { 50% { transform: rotate(24deg); } }
+    .drop-item { position: fixed; z-index: 20; font-size: 70px; line-height: 1; pointer-events: none; filter: drop-shadow(0 8px 1px rgba(81,41,60,.23)); }
+    .drop-item.bomb { font-size: 61px; }
+    .burst { position: fixed; z-index: 21; padding: 9px 13px; border: 3px solid #d45b59; border-radius: 14px; background: #fff5da; color: #bd434a; box-shadow: 0 4px 0 rgba(154,82,109,.2); font-size: 16px; font-weight: 900; pointer-events: none; }
+    .complete-card { display: grid; place-items: center; min-height: calc(100vh - 170px); text-align: center; }
+    .complete-inner { width: min(680px, 100%); padding: clamp(26px, 5vw, 52px); border: 4px solid var(--line); border-radius: 30px; background: var(--paper); box-shadow: var(--shadow); }
+    .complete-inner .big-food { font-size: 100px; }
+    .complete-inner h2 { margin: 8px 0; font-size: clamp(34px, 6vw, 58px); }
+    .complete-inner p { font-size: 20px; font-weight: 700; line-height: 1.5; }
+    .next-button { margin-top: 15px; padding: 14px 22px; border: 3px solid var(--line); border-radius: 15px; background: var(--yellow); box-shadow: 0 5px 0 rgba(154,82,109,.27); color: var(--ink); cursor: pointer; font-size: 18px; font-weight: 900; }
+    .next-button:active, .back-button:active { transform: translateY(3px); box-shadow: none; }
+
+    @media (max-width: 720px) {
+      .topbar { padding: 12px 14px; }
+      .brand-badge { display: none; }
+      .score-pill { min-width: auto; padding: 7px 10px; }
+      .path-map { grid-template-columns: 1fr; gap: 42px; margin-top: 38px; }
+      .path-map::before { top: 8%; left: 50%; width: 11px; height: 82%; transform: translateX(-50%); background: repeating-linear-gradient(180deg, #fff7dc 0 24px, #e99593 24px 40px); }
+      .level-card { min-height: 205px; }
+      .food-illustration { margin-top: 10px; font-size: 65px; }
+      .challenge-heading { gap: 8px; padding-top: 0; }
+      .round-label { font-size: 18px; }
+      .hearts { font-size: 22px; letter-spacing: 0; }
+      .answers { grid-template-columns: 1fr; gap: 10px; }
+      .question-card { padding: 22px 16px; }
+      .catch-zone { min-height: 250px; }
+      .player { width: 175px; height: 205px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="game-shell">
+    <header class="topbar">
+      <div class="brand">
+        <a class="home-link" href="./index.html" aria-label="Back to game center">←</a>
+        <span class="brand-badge">READING EXPLORER F</span>
+        <h1>Unit 2A Food Challenge</h1>
+      </div>
+      <div class="score-row">
+        <div class="score-pill"><span class="score-icon">🍽️</span><span id="score">0</span></div>
+        <div class="score-pill"><span class="score-icon">⭐</span><span id="stars">0</span></div>
+      </div>
+    </header>
+
+    <section id="mapScreen" class="screen active" aria-label="Level map">
+      <div class="map-intro">
+        <h2>Feed Your Brain!</h2>
+        <p>Answer questions, catch food, and become the Unit 2A champion.</p>
+      </div>
+      <div id="levelMap" class="path-map"></div>
+    </section>
+
+    <section id="gameScreen" class="screen" aria-live="polite">
+      <div class="challenge">
+        <div>
+          <div class="challenge-heading">
+            <button id="backToMap" class="back-button" type="button">← Map</button>
+            <div id="roundLabel" class="round-label"></div>
+            <div id="hearts" class="hearts" aria-label="Lives"></div>
+          </div>
+          <div class="progress"><div id="progressFill" class="progress-fill"></div></div>
+        </div>
+        <article class="question-card">
+          <span id="questionCount" class="question-count"></span>
+          <h2 id="questionText"></h2>
+          <div id="answers" class="answers"></div>
+          <p id="feedback" class="feedback"></p>
+        </article>
+        <div id="catchZone" class="catch-zone">
+          <div class="ground"></div>
+          <div id="player" class="player" aria-label="Cute puppy waiting to catch food">
+            <img id="puppyImage" class="player-image" src="./assets/snack-scout-idle-transparent.png" alt="Cute puppy waiting to catch food" />
+            <span id="mouth" class="mouth-target" aria-hidden="true"></span>
+            <svg viewBox="0 0 220 250" role="img" aria-label="Cute cartoon puppy waiting to catch food">
+              <g id="puppyCharacter" stroke="#3d3040" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+                <ellipse cx="110" cy="235" rx="76" ry="11" fill="#7e4963" opacity=".2" stroke="none"/>
+                <path class="tail" d="M154 193c27-22 42-5 38 11-3 13-17 18-29 8" fill="none" stroke="#fffdf6" stroke-width="17"/>
+                <ellipse cx="110" cy="192" rx="56" ry="44" fill="#fffdf6"/>
+                <path d="M60 191c-18 9-26 23-29 37M160 191c18 9 26 23 29 37" fill="none" stroke="#fffdf6" stroke-width="17"/>
+                <ellipse cx="37" cy="230" rx="14" ry="10" fill="#fffdf6"/>
+                <ellipse cx="183" cy="230" rx="14" ry="10" fill="#fffdf6"/>
+                <path d="M73 222v-33c8-12 22-17 37-17s29 5 37 17v33Z" fill="#8fc9dc"/>
+                <path d="M83 222v-28c7-7 17-10 27-10s20 3 27 10v28Z" fill="#dff1f5" stroke="none"/>
+                <circle cx="110" cy="183" r="11" fill="#ffd45e"/>
+                <path d="M110 178v10M105 183h10" fill="none" stroke="#b87c35" stroke-width="2"/>
+                <path d="M38 105c-3-36 15-58 40-54 14 2 25 15 27 34l-14 44c-22 3-46-5-53-24Z" fill="#fffdf6"/>
+                <path d="M182 105c3-36-15-58-40-54-14 2-25 15-27 34l14 44c22 3 46-5 53-24Z" fill="#fffdf6"/>
+                <path d="M52 98c0-43 25-70 58-70s58 27 58 70c0 39-23 62-58 62S52 137 52 98Z" fill="#fffdf6"/>
+                <path d="M61 70c15-23 35-31 56-28 19 2 34 11 43 27" fill="none" stroke="#f2e7d1" stroke-width="9"/>
+                <path d="M59 65c17-13 73-16 102 2" fill="none" stroke="#ffd45e" stroke-width="10"/>
+                <path d="M107 51l6-7 4 9" fill="#ffd45e"/>
+                <ellipse cx="87" cy="98" rx="5" ry="7" fill="#3d3040"/>
+                <ellipse cx="133" cy="98" rx="5" ry="7" fill="#3d3040"/>
+                <ellipse cx="79" cy="117" rx="16" ry="7" fill="#f7c9ca" opacity=".7" stroke="none"/>
+                <ellipse cx="141" cy="117" rx="16" ry="7" fill="#f7c9ca" opacity=".7" stroke="none"/>
+                <ellipse cx="110" cy="115" rx="28" ry="18" fill="#fffdf6" stroke-width="3"/>
+                <path d="M104 108c2-6 11-6 13 0 1 5-2 9-6.5 9s-8-4-6.5-9Z" fill="#3d3040"/>
+                <path d="M110 117v5" fill="none" stroke-width="3"/>
+                <ellipse id="legacy-mouth" class="mouth" cx="110" cy="139" rx="27" ry="19" fill="#4a2944"/>
+                <path d="M92 136c12-8 25-9 36 0" fill="none" stroke="#fff7f4" stroke-width="4"/>
+                <path d="M77 163c18 9 48 9 66 0" fill="none" stroke="#ef7590" stroke-width="9"/>
+              </g>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="completeScreen" class="screen">
+      <div class="complete-card"><div id="completeContent" class="complete-inner"></div></div>
+    </section>
+  </main>
+
+  <script>
+    const levels = [
+      {
+        name: "Hot Dog Round",
+        food: "🌭",
+        short: "Vocabulary",
+        description: "Catch key words and useful phrases.",
+        questions: [
+          { q: "Which word means ‘a person trained to compete in sports’?", options: ["athlete", "legend", "record", "tradition"], answer: 0, note: "An athlete trains and competes in sports." },
+          { q: "Complete the phrase: set / break / hold a ____.", options: ["contest", "record", "tradition", "opinion"], answer: 1, note: "We say set, break, or hold a record." },
+          { q: "Which phrase means ‘exercise or train’?", options: ["work out", "argue with", "set a record", "break a record"], answer: 0, note: "Work out means exercise or train." },
+          { q: "Speed eating may be ____ for the body.", options: ["exactly", "various", "unhealthy", "traditional"], answer: 2, note: "Unhealthy means not good for your health." },
+          { q: "Choose the best phrase: Some people ____ eating contests.", options: ["argue against", "work out", "hold a record", "set a food"], answer: 0, note: "Argue against means give reasons against an idea." },
+          { q: "Which word is an adverb meaning ‘in a precise or completely correct way’?", options: ["exactly", "athlete", "tradition", "unhealthy"], answer: 0, note: "Exactly is an adverb." },
+          { q: "Which word means ‘many different kinds of’?", options: ["various", "record", "work out", "argue"], answer: 0, note: "Various means many different kinds of." },
+          { q: "Which word family is correct?", options: ["health → healthy → unhealthy", "health → athlete → unhealthy", "record → traditional → health", "work out → various → athlete"], answer: 0, note: "Unhealthy comes from the health word family." },
+          { q: "Which word belongs in this family: compete → competition → competitive → ____?", options: ["competitor", "tradition", "argument", "health"], answer: 0, note: "A competitor is a person who competes." },
+          { q: "Which sentence uses tradition correctly?", options: ["The contest became a yearly tradition.", "We tradition before competitions.", "The athlete is tradition.", "They tradition a record."], answer: 0, note: "A tradition is something people do for many years." },
+          { type: "pronounce", word: "argue", ipa: "/ˈɑːrɡjuː/", note: "You recorded the word first. Compare it with the US English model now." },
+          { type: "pronounce", word: "athlete", ipa: "/ˈæθliːt/", note: "You read first. Now compare your first sound /æ/ and /θ/ with the model." },
+          { type: "pronounce", word: "record", ipa: "/ˈrekərd/", note: "For the noun, the model uses first-syllable stress: RE-cord." },
+          { type: "pronounce", word: "tradition", ipa: "/trəˈdɪʃən/", note: "Compare your stress with the model: tra-DI-tion." },
+          { q: "Complete the sentence: Competitive eaters ____ before contests.", options: ["work out", "various", "exactly", "tradition"], answer: 0, note: "Competitive eaters train and work out before contests." }
+        ]
+      },
+      {
+        name: "Pizza Round",
+        food: "🍕",
+        short: "Reading Detective",
+        description: "Find clues around a reading passage.",
+        questions: [
+          { q: "Which part tells the topic of a reading passage?", options: ["caption", "title", "footnote", "sidebar"], answer: 1, note: "The title tells the topic." },
+          { q: "Which part explains a photo?", options: ["caption", "subheading", "paragraph", "sidebar"], answer: 0, note: "A caption explains a photo." },
+          { q: "Which part gives extra facts beside the main text?", options: ["photo", "footnote", "sidebar", "title"], answer: 2, note: "A sidebar gives extra facts." },
+          { q: "Which part explains a difficult word?", options: ["subheading", "footnote", "caption", "photo"], answer: 1, note: "A footnote explains difficult words." },
+          { q: "Why should readers look at photos and captions before reading deeply?", options: ["They show visual clues about the topic.", "They replace the whole passage.", "They give only opinions.", "They make the text longer."], answer: 0, note: "Photos and captions give useful clues before you read." }
+        ]
+      },
+      {
+        name: "Burger Round",
+        food: "🍔",
+        short: "Story Champion",
+        description: "Understand the story, facts, and opinions.",
+        questions: [
+          { q: "What is Reading 2A mainly about?", options: ["competitive speed eating", "Italian pizza recipes", "a school sports day", "healthy breakfast"], answer: 0, note: "The article is about competitive speed eating." },
+          { q: "Where is Nathan’s famous hot dog eating contest held?", options: ["New York", "London", "Naples", "Beijing"], answer: 0, note: "Nathan's contest is held in New York." },
+          { q: "When does the contest happen every year?", options: ["July 4th", "January 1st", "October 31st", "December 25th"], answer: 0, note: "It happens every year on July 4th." },
+          { q: "Why do competitive eaters train before contests?", options: ["to prepare for the competition", "to write captions", "to make hot dogs", "to visit New York"], answer: 0, note: "They train and work out before competitions." },
+          { q: "Which sentence is an opinion?", options: ["The contest happens every July 4th.", "Joey Chestnut holds a record.", "Speed eating is a waste of food.", "The contest is in New York."], answer: 2, note: "Whether speed eating is a waste of food is an opinion." }
+        ]
+      }
+    ];
+
+    const state = { unlocked: 0, level: 0, question: 0, score: 0, stars: 0, lives: 3, results: [0, 0, 0] };
+    const mapScreen = document.querySelector("#mapScreen");
+    const gameScreen = document.querySelector("#gameScreen");
+    const completeScreen = document.querySelector("#completeScreen");
+    const levelMap = document.querySelector("#levelMap");
+    const scoreEl = document.querySelector("#score");
+    const starsEl = document.querySelector("#stars");
+    const roundLabel = document.querySelector("#roundLabel");
+    const heartsEl = document.querySelector("#hearts");
+    const questionCount = document.querySelector("#questionCount");
+    const questionText = document.querySelector("#questionText");
+    const answersEl = document.querySelector("#answers");
+    const feedbackEl = document.querySelector("#feedback");
+    const progressFill = document.querySelector("#progressFill");
+    const player = document.querySelector("#player");
+    const puppyImage = document.querySelector("#puppyImage");
+    const catchZone = document.querySelector("#catchZone");
+    const questionCard = document.querySelector(".question-card");
+    let audioContext;
+    let recorder;
+    let microphoneStream;
+    let recordedUrl = "";
+    let pronunciationTranscript = "";
+    let pronunciationFinished = false;
+    let pronunciationAttempts = 0;
+    const referenceAudio = {
+      argue: "../audio/unit2a/argue-us.mp3",
+      athlete: "../audio/unit2a/athlete-us.mp3",
+      exactly: "../audio/unit2a/exactly-us.mp3",
+      record: "../audio/unit2a/record-us.mp3",
+      tradition: "../audio/unit2a/tradition-us.mp3",
+      various: "../audio/unit2a/various-us.mp3",
+      contest: "../audio/unit2a/contest-us.mp3",
+      legend: "../audio/unit2a/legend-us.mp3"
+    };
+    const puppyFrames = {
+      idle: "./assets/snack-scout-idle-transparent.png",
+      chew: "./assets/snack-scout-chew-transparent.png",
+      celebrate: "./assets/snack-scout-celebrate-transparent.png"
+    };
+    const progressKey = "re-reading-games-v1";
+    function renderPuppyFrame(name) {
+      puppyImage.src = puppyFrames[name];
+    }
+
+    function animatePuppyEat() {
+      renderPuppyFrame("chew");
+      setTimeout(() => renderPuppyFrame("celebrate"), 340);
+      setTimeout(() => renderPuppyFrame("idle"), 860);
+    }
+
+    function updateScore() {
+      scoreEl.textContent = state.score;
+      starsEl.textContent = state.stars;
+    }
+
+    function getAudioContext() {
+      if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioContext.state === "suspended") audioContext.resume();
+      return audioContext;
+    }
+
+    function tone(frequency, start, duration, type = "sine", volume = .07) {
+      const context = getAudioContext();
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+      oscillator.type = type;
+      oscillator.frequency.setValueAtTime(frequency, start);
+      gain.gain.setValueAtTime(.001, start);
+      gain.gain.exponentialRampToValueAtTime(volume, start + .015);
+      gain.gain.exponentialRampToValueAtTime(.001, start + duration);
+      oscillator.connect(gain).connect(context.destination);
+      oscillator.start(start);
+      oscillator.stop(start + duration + .03);
+    }
+
+    function playSound(kind) {
+      const context = getAudioContext();
+      const now = context.currentTime;
+      if (kind === "click") {
+        tone(740, now, .07, "triangle", .035);
+        tone(1047, now + .06, .11, "sine", .025);
+      } else if (kind === "correct") {
+        tone(784, now, .13, "sine", .075);
+        tone(1047, now + .12, .15, "sine", .085);
+        tone(1319, now + .27, .22, "triangle", .07);
+      } else if (kind === "wrong") {
+        tone(126, now, .22, "sawtooth", .09);
+        tone(88, now + .15, .3, "sawtooth", .085);
+      }
+    }
+
+    function showScreen(screen) {
+      [mapScreen, gameScreen, completeScreen].forEach((item) => item.classList.toggle("active", item === screen));
+    }
+
+    function renderMap() {
+      levelMap.innerHTML = levels.map((level, index) => {
+        const locked = index > state.unlocked;
+        const status = index < state.unlocked ? "Completed" : index === state.unlocked ? "Play now" : "Locked";
+        return `<button class="level-card" type="button" data-level="${index}" ${locked ? "disabled" : ""}>
+          <span class="level-number">${index + 1}</span>
+          ${locked ? '<span class="lock">🔒</span>' : ""}
+          <div class="food-illustration">${level.food}</div>
+          <h3>${level.name}</h3>
+          <p>${level.description}</p>
+          <span class="level-status">${status}</span>
+        </button>`;
+      }).join("");
+      levelMap.querySelectorAll("[data-level]").forEach((button) => {
+        button.addEventListener("click", () => startLevel(Number(button.dataset.level)));
+      });
+    }
+
+    function startLevel(index) {
+      state.level = index;
+      state.question = 0;
+      state.lives = 3;
+      state.results[index] = 0;
+      showScreen(gameScreen);
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      const level = levels[state.level];
+      const item = level.questions[state.question];
+      roundLabel.innerHTML = `<span class="emoji">${level.food}</span><span>${level.name}</span>`;
+      heartsEl.textContent = "❤️".repeat(state.lives) + "🖤".repeat(3 - state.lives);
+      questionCount.textContent = `Question ${state.question + 1} / ${level.questions.length}`;
+      questionText.textContent = item.q || "Say the word clearly.";
+      progressFill.style.width = `${(state.question / level.questions.length) * 100}%`;
+      feedbackEl.textContent = "";
+      feedbackEl.className = "feedback";
+      answersEl.innerHTML = "";
+      if (item.type === "pronounce") {
+        pronunciationFinished = false;
+        pronunciationAttempts = 0;
+        renderPronunciationQuestion(item);
+        return;
+      }
+      item.options.forEach((option, index) => {
+        const button = document.createElement("button");
+        button.className = "answer";
+        button.type = "button";
+        button.textContent = option;
+        button.addEventListener("click", () => chooseAnswer(index, button));
+        answersEl.appendChild(button);
+      });
+    }
+
+    function renderPronunciationQuestion(item) {
+      answersEl.innerHTML = `<div class="pronunciation-panel">
+        <div class="word-chip"><strong>${item.word}</strong><span>${item.ipa}</span></div>
+        <div class="pronunciation-actions">
+          <button class="pronunciation-button record-button" id="recordWord" type="button">🎙 Record My Voice</button>
+          <button class="pronunciation-button playback-button" id="playMyRecording" type="button" disabled>▶ Play My Recording</button>
+          <button class="pronunciation-button listen-button" id="submitRecording" type="button" disabled>✓ Submit My Pronunciation</button>
+          <button class="pronunciation-button skip-button" id="skipPronunciation" type="button">Skip this word →</button>
+        </div>
+        <p id="pronunciationStatus" class="pronunciation-status">Read the word yourself first. The US English model unlocks after you submit.</p>
+      </div>`;
+      document.querySelector("#recordWord").addEventListener("click", () => toggleRecording(item));
+      document.querySelector("#playMyRecording").addEventListener("click", () => {
+        if (recordedUrl) new Audio(recordedUrl).play();
+      });
+      document.querySelector("#submitRecording").addEventListener("click", () => submitRecordedPronunciation(item));
+      document.querySelector("#skipPronunciation").addEventListener("click", () => skipPronunciation(item));
+    }
+
+    function playReference(word) {
+      const audio = new Audio(referenceAudio[word] || "");
+      if (referenceAudio[word]) {
+        audio.play().catch(() => speakFallback(word));
+      } else {
+        speakFallback(word);
+      }
+    }
+
+    function speakFallback(word) {
+      if (!window.speechSynthesis) return;
+      window.speechSynthesis.cancel();
+      const speech = new SpeechSynthesisUtterance(word);
+      speech.lang = "en-US";
+      speech.rate = .82;
+      const voice = window.speechSynthesis.getVoices().find((item) => item.lang === "en-US");
+      if (voice) speech.voice = voice;
+      window.speechSynthesis.speak(speech);
+    }
+
+    async function toggleRecording(item) {
+      const button = document.querySelector("#recordWord");
+      const status = document.querySelector("#pronunciationStatus");
+      if (recorder && recorder.state === "recording") {
+        recorder.stop();
+        return;
+      }
+      if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) {
+        status.textContent = "Recording is not available in this browser. Please use Chrome or Edge and allow microphone access.";
+        status.className = "pronunciation-status bad";
+        return;
+      }
+      try {
+        microphoneStream = microphoneStream && microphoneStream.active
+          ? microphoneStream
+          : await navigator.mediaDevices.getUserMedia({ audio: true });
+        const chunks = [];
+        pronunciationTranscript = "";
+        recorder = new MediaRecorder(microphoneStream);
+        recorder.ondataavailable = (event) => { if (event.data.size) chunks.push(event.data); };
+        recorder.onstop = () => {
+          recordedUrl = URL.createObjectURL(new Blob(chunks, { type: recorder.mimeType || "audio/webm" }));
+          document.querySelector("#playMyRecording").disabled = false;
+          document.querySelector("#submitRecording").disabled = false;
+          button.textContent = "🎙 Record Again";
+          button.classList.remove("is-recording");
+          status.textContent = "Recording saved. Submit it to check your pronunciation and unlock the US English model.";
+          status.className = "pronunciation-status";
+        };
+        recorder.start();
+        startRecognition(item.word);
+        button.textContent = "⏹ Stop Recording";
+        button.classList.add("is-recording");
+        status.textContent = `Recording now. Say “${item.word}” clearly, then tap Stop.`;
+        status.className = "pronunciation-status";
+      } catch (error) {
+        status.textContent = "Microphone permission is needed for this challenge. Please allow microphone access, then try again.";
+        status.className = "pronunciation-status bad";
+      }
+    }
+
+    function startRecognition(target) {
+      const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!Recognition) return;
+      const recognition = new Recognition();
+      recognition.lang = "en-US";
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 3;
+      recognition.onresult = (event) => {
+        pronunciationTranscript = [...event.results[0]].map((result) => result.transcript).join(" ");
+      };
+      recognition.onerror = () => { pronunciationTranscript = ""; };
+      try { recognition.start(); } catch (error) { /* A browser may only allow one recognition session at a time. */ }
+    }
+
+    function submitRecordedPronunciation(item) {
+      if (!recordedUrl) return;
+      document.querySelector("#submitRecording").disabled = true;
+      evaluatePronunciation(item);
+    }
+
+    async function skipPronunciation(item) {
+      if (pronunciationFinished) return;
+      pronunciationFinished = true;
+      if (recorder && recorder.state === "recording") recorder.stop();
+      [...answersEl.querySelectorAll("button")].forEach((button) => { button.disabled = true; });
+      await resolveAnswer(true, `Skipped “${item.word}”. You can practise this word again later.`, { awardScore: false });
+    }
+
+    function evaluatePronunciation(item) {
+      if (pronunciationFinished) return;
+      const status = document.querySelector("#pronunciationStatus");
+      const target = item.word.toLowerCase().replace(/\s+/g, " ");
+      const heard = pronunciationTranscript.toLowerCase().replace(/[^a-z ]/g, "").replace(/\s+/g, " ").trim();
+      const accepted = heard === target || heard.split(" ").includes(target) || (target === "work out" && heard.includes("workout"));
+      if (accepted) {
+        status.textContent = `Nice! The pronunciation check heard “${item.word}”. Now listen to the US English model.`;
+        status.className = "pronunciation-status good";
+        playReference(item.word);
+        setTimeout(() => submitPronunciation(item, true), 1500);
+        return;
+      }
+      status.textContent = heard ? `The microphone heard “${heard}”. Now listen to the US English model and notice the difference.` : "We could not hear the word clearly. Now listen to the US English model and compare.";
+      status.className = "pronunciation-status bad";
+      playReference(item.word);
+      setTimeout(() => submitPronunciation(item, false), 1500);
+    }
+
+    async function submitPronunciation(item, correct) {
+      if (pronunciationFinished) return;
+      pronunciationFinished = true;
+      [...answersEl.querySelectorAll("button")].forEach((button) => { button.disabled = true; });
+      await resolveAnswer(correct, item.note);
+    }
+
+    async function chooseAnswer(index, clickedButton) {
+      const level = levels[state.level];
+      const item = level.questions[state.question];
+      const buttons = [...answersEl.querySelectorAll("button")];
+      buttons.forEach((button) => { button.disabled = true; });
+      const correct = index === item.answer;
+      clickedButton.classList.add(correct ? "correct" : "wrong");
+      if (!correct) buttons[item.answer].classList.add("correct");
+      await resolveAnswer(correct, item.note);
+    }
+
+    async function resolveAnswer(correct, note, { awardScore = correct } = {}) {
+      const level = levels[state.level];
+      playSound(correct ? "correct" : "wrong");
+      if (!correct) {
+        questionCard.classList.remove("shake");
+        void questionCard.offsetWidth;
+        questionCard.classList.add("shake");
+        if (navigator.vibrate) navigator.vibrate([85, 35, 105]);
+      }
+      feedbackEl.textContent = correct ? `Great catch! ${note}` : `Boom! ${note}`;
+      feedbackEl.classList.add(correct ? "good" : "bad");
+
+      await dropItem(correct ? level.food : "💣", correct);
+      if (correct) {
+        if (awardScore) {
+          state.score += 1;
+          state.stars += 1;
+          state.results[state.level] += 1;
+        }
+      } else {
+        state.lives -= 1;
+      }
+      updateScore();
+      heartsEl.textContent = "❤️".repeat(state.lives) + "🖤".repeat(3 - state.lives);
+      await wait(900);
+      if (state.lives === 0) {
+        finishLevel(true);
+      } else if (state.question === level.questions.length - 1) {
+        finishLevel(false);
+      } else {
+        state.question += 1;
+        renderQuestion();
+      }
+    }
+
+    function dropItem(symbol, correct) {
+      return new Promise((resolve) => {
+        const mouth = document.querySelector("#mouth").getBoundingClientRect();
+        const startX = window.innerWidth / 2 - 28 + (Math.random() * 130 - 65);
+        const targetX = mouth.left + mouth.width / 2 - 32;
+        const targetY = correct ? mouth.top - 15 : mouth.top + 75;
+        const item = document.createElement("div");
+        item.className = `drop-item${correct ? "" : " bomb"}`;
+        item.textContent = symbol;
+        item.style.left = `${startX}px`;
+        item.style.top = "-100px";
+        document.body.appendChild(item);
+        const animation = item.animate([
+          { transform: "translate(0, 0) rotate(-12deg) scale(.75)", opacity: 1 },
+          { transform: `translate(${targetX - startX}px, ${targetY + 100}px) rotate(${correct ? 390 : 250}deg) scale(1)`, opacity: 1 }
+        ], { duration: 780, easing: "cubic-bezier(.2,.78,.35,1)", fill: "forwards" });
+        animation.onfinish = () => {
+          item.remove();
+          if (correct) {
+            animatePuppyEat();
+          } else {
+            showBurst(targetX, targetY, "Oops! Try again!");
+          }
+          resolve();
+        };
+      });
+    }
+
+    function showBurst(x, y, text) {
+      const burst = document.createElement("div");
+      burst.className = "burst";
+      burst.textContent = text;
+      burst.style.left = `${x - 20}px`;
+      burst.style.top = `${y - 20}px`;
+      document.body.appendChild(burst);
+      burst.animate([{ transform: "scale(.6)", opacity: 0 }, { transform: "scale(1.1)", opacity: 1 }, { transform: "translateY(-35px) scale(1)", opacity: 0 }], { duration: 1000, easing: "ease-out" });
+      setTimeout(() => burst.remove(), 1000);
+    }
+
+    function finishLevel(outOfLives) {
+      const level = levels[state.level];
+      const result = state.results[state.level];
+      const passed = !outOfLives;
+      if (passed && state.level === state.unlocked && state.unlocked < levels.length - 1) state.unlocked += 1;
+      if (passed && state.level === levels.length - 1) saveProgress();
+      showScreen(completeScreen);
+      document.querySelector("#completeContent").innerHTML = `
+        <div class="big-food">${passed ? level.food : "💥"}</div>
+        <h2>${passed ? "Round Complete!" : "Food Break!"}</h2>
+        <p>You caught <strong>${result} / ${level.questions.length}</strong> ${level.food} in the ${level.name}.</p>
+        <p>${passed ? "Your next food challenge is ready." : "Review the clues and try this round again."}</p>
+        <button id="completeAction" class="next-button" type="button">${passed && state.level < levels.length - 1 ? "Next Round →" : passed ? "Unit Scores" : "Try Again"}</button>`;
+      document.querySelector("#completeAction").addEventListener("click", () => {
+        if (!passed) return startLevel(state.level);
+        if (state.level < levels.length - 1) return startLevel(state.level + 1);
+        window.location.href = `./index.html?u2a=${state.score}`;
+      });
+    }
+
+    function saveProgress() {
+      let progress = {};
+      try { progress = JSON.parse(localStorage.getItem(progressKey)) || {}; } catch (error) { progress = {}; }
+      progress.unit2 ||= {};
+      const previous = progress.unit2.unit2a || {};
+      progress.unit2.unit2a = {
+        completed: true,
+        score: Math.max(previous.score || 0, state.score),
+        total: levels.reduce((sum, level) => sum + level.questions.length, 0),
+        stageScores: [...state.results],
+        completedAt: new Date().toISOString()
+      };
+      try { localStorage.setItem(progressKey, JSON.stringify(progress)); } catch (error) { /* The score also returns through the URL for file:// use. */ }
+    }
+
+    function wait(time) { return new Promise((resolve) => setTimeout(resolve, time)); }
+    document.addEventListener("click", (event) => {
+      const button = event.target.closest("button");
+      if (button && !button.disabled) playSound("click");
+    });
+    document.querySelector("#backToMap").addEventListener("click", () => { renderMap(); showScreen(mapScreen); });
+    renderPuppyFrame("idle");
+    updateScore();
+    renderMap();
+  </script>
+</body>
+</html>
