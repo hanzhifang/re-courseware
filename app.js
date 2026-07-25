@@ -121,6 +121,9 @@ const extraPagesByUnit = {
     { title: "2B · Word Family", image: "../RE/U2/2B-wordfamily.png", fileName: "2B-wordfamily.png" },
     { title: "2B · Page 32", image: "../RE/U2/2B-32.png", fileName: "2B-32.png" },
     { title: "2B · Output", image: "../RE/U2/2B-output.png", fileName: "2B-output.png" },
+    { title: "2V · Page 33", image: "../RE/U2/2V-33.png", fileName: "2V-33.png" },
+    { title: "2V · Preview", image: "../RE/U2/2V-pre.png", fileName: "2V-pre.png" },
+    { title: "2V · Page 34", image: "../RE/U2/2V-34.png", fileName: "2V-34.png" },
   ],
   12: [
     { title: "12A · Page 160", image: "../RE/12A160.png", fileName: "12A160.png" },
