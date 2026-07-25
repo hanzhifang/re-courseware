@@ -125,6 +125,11 @@ const extraPagesByUnit = {
     { title: "2V · Preview", image: "../RE/U2/2V-pre.png", fileName: "2V-pre.png" },
     { title: "2V · Page 34", image: "../RE/U2/2V-34.png", fileName: "2V-34.png" },
   ],
+  3: [
+    { title: "3A · Page 36", image: "../RE/U3/3A-36.png", fileName: "3A-36.png" },
+    { title: "3A · Page 37", image: "../RE/U3/3A-37.png", fileName: "3A-37.png" },
+    { title: "3A · Story Map", image: "../RE/U3/3A-story%20map.png", fileName: "3A-story map.png" },
+  ],
   12: [
     { title: "12A · Page 160", image: "../RE/12A160.png", fileName: "12A160.png" },
     { title: "12A · Page 161", image: "../RE/12A161.png", fileName: "12A161.png" },
