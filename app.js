@@ -126,7 +126,9 @@ const extraPagesByUnit = {
     { title: "2V · Page 34", image: "../RE/U2/2V-34.png", fileName: "2V-34.png" },
   ],
   3: [
+    { title: "3A · Cool Jobs", image: "../RE/U3/cool%20jobs.png", fileName: "cool jobs.png" },
     { title: "3A · Page 36", image: "../RE/U3/3A-36.png", fileName: "3A-36.png" },
+    { title: "3A · Daily Work", image: "../RE/U3/daily%20work.png", fileName: "daily work.png" },
     { title: "3A · Page 37", image: "../RE/U3/3A-37.png", fileName: "3A-37.png" },
     { title: "3A · Story Map", image: "../RE/U3/3A-story%20map.png", fileName: "3A-story map.png" },
   ],
