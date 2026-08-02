@@ -135,6 +135,7 @@ const extraPagesByUnit = {
     { title: "3A · Page 38-1", image: "../RE/U3/3A-38-1.png", fileName: "3A-38-1.png" },
     { title: "3A · Page 39", image: "../RE/U3/3A-39.png", fileName: "3A-39.png" },
     { title: "3A · Page 40", image: "../RE/U3/3A-40.png", fileName: "3A-40.png" },
+    ...(globalThis.unit3AVocabCardPages || []),
   ],
   12: [
     { title: "12A · Page 160", image: "../RE/12A160.png", fileName: "12A160.png" },
